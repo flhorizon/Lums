@@ -13,12 +13,12 @@
 
 #include <windows.h>
 #include <LumsInclude/OperatingSystem.hpp>
+#include <LumsInclude/Path.hpp>
 
-static std::string  res_path;
 
 namespace lm
 {
-    const std::string&
+    const path_t&
     resourcePath()
     {
         if (res_path.empty())
@@ -32,4 +32,15 @@ namespace lm
         }
         return res_path;
     }
+	
+	const path_t&
+	userDataPath()
+	{
+		if (res_path.empty())
+		{
+			// -> GetSpecialFolderPath(specialFolder)
+			// with   ``specialFolder'' <- FOLDERID_RoamingAppData
+		}
+		return appdata_path;
+	}
 }
