@@ -11,36 +11,110 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include "AtlConv.h"
+#include "AtlBase.h"
+#include "Shlobj.h"
 #include <LumsInclude/OperatingSystem.hpp>
-#include <LumsInclude/Path.hpp>
 
+// Store UTF-8 for proper std:: C++ and convert back to UTF-16 on WIN32 calls.
+static std::string  res_path;
+static std::string  appsupport_path;
 
 namespace lm
 {
-    const path_t&
+    const std::string&
     resourcePath()
     {
+		USES_CONVERSION;
         if (res_path.empty())
         {
-            char path[MAX_PATH];
+            wchar_t 		wcPath[MAX_PATH];
+			std::wstring	wcPathStr;
             HMODULE hModule = GetModuleHandle(NULL);
 
-            GetModuleFileName(hModule, path, MAX_PATH);
-            res_path = path;
-            res_path = res_path.substr(0, res_path.find_last_of('\\') + 1);
+            GetModuleFileNameW(hModule, wcPath, MAX_PATH);
+			
+			wcPathStr = wcPath;
+            wcPathStr = wcPathStr.substr(0, wcPathStr.find_last_of(L'\\') + 1);
+			
+			// Convenient ATL conversion macro.
+			// The API conversion function `WideCharToMultiByte' 
+			// has a convoluted behaviour (ambiguous return values...).
+			// Converting UTF-16 wchar_t to ANSI char using UTF-8 codepage (producing UTF-8 altogether).
+			// Asian-proof.
+			res_path = CW2A(wcPathStr.c_str(), CP_UTF8); 
         }
         return res_path;
     }
 	
-	const path_t&
-	userDataPath()
+	// Returns nullptr if the application path has not been set.
+	const std::string
+    appSupportPath()
 	{
-		if (res_path.empty())
+		return appsupport_path;
+	}
+	
+	static BOOL
+	directoryExists(LPCWSTR cwPath)
+	{
+		DWORD dwAttrib = GetFileAttributesW(cwPath);
+		
+		return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
+				(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+	}
+	
+	// Returns 0 on success, as proper POSIX calls
+	// and contrary to most WIN32 API calls.
+	// Returns non-zero on error.
+	int
+	mkAppDataDir(const char *app)
+	{
+		USES_CONVERSION;
+		std::wstring		dirPath(CA2W(app, CP_UTF8));
+		PWSTR            	oPath;
+		HRESULT 			res;
+
+		// Nothing to do; success.
+		if (directoryExists(dirPath.c_str()))
+			return 0;
+
+		res = SHGetKnownFolderPath(
+			FOLDERID_RoamingAppData				// Query user's AppData\Roaming folder
+			, KF_FLAG_DEFAULT_PATH				// Just get the default path.
+			, nullptr							// On the behalf of the current user
+			, &oPath							// Output. Needs to be CoTaskMemFree'd.
+			);
+
+		if (res != S_OK)
 		{
-			// -> GetSpecialFolderPath(specialFolder)
-			// with   ``specialFolder'' <- FOLDERID_RoamingAppData
+			perror("SHGetKnownFolderPath");
+			return -1;
 		}
-		return appdata_path;
+
+		dirPath = std::wstring(oPath) + std::wstring(L"\\") + dirPath;
+		CoTaskMemFree(oPath);
+
+		// Make myPath + "/myfile" fstream.open consistent accross platforms.
+		for (;;)
+		{
+			size_t pos = dirPath.find_first_of(L'\\');
+
+			if (pos != std::wstring::npos)
+				dirPath[pos] = L'/';
+			else
+				break;
+		}
+		appsupport_path = CW2A(dirPath.c_str(), CP_UTF8);
+
+		// This one returns 0 on error. RLY.
+		if (CreateDirectoryW(dirPath.c_str(), nullptr) == 0)
+		{
+			perror("CreateDirectoryW");
+			return -1;
+		}
+
+		return 0;
 	}
 }
