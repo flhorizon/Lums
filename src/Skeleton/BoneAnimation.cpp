@@ -28,11 +28,51 @@ BoneAnimation::loadFromFile(std::ifstream& file)
     for (auto& t : translations)
         t.loadFromFile(file);
 
-    uint32_t rotationCount;
-    file.read((char*)&rotationCount, 4);
-    rotations.resize(rotationCount);
-    for (auto& r : rotations)
-        r.loadFromFile(file);
+        uint32_t frame;
+        float angle;
+
+        file.read((char*)&frame, 4);
+        file.read((char*)&angle, 4);
+        r.frame = frame;
+        r.angle = angle;
+        r.curve.loadFromFile(file);
+    }
+    for (unsigned i = 0; i < translationCount; ++i)
+    {
+        auto& t = translations[i];
+
+        uint32_t frame;
+        Vector2f translation;
+
+        file.read((char*)&frame, 4);
+        file.read((char*)&translation.x, 4);
+        file.read((char*)&translation.y, 4);
+        t.frame = frame;
+        t.translation = translation;
+        t.curve.loadFromFile(file);
+    }
+}
+
+template <typename T>
+static int
+lookupKeyFrame(const std::vector<T>& vect, int frame)
+{
+    for (int i = 0; i < vect.size() - 1; ++i)
+    {
+        if (frame >= vect[i].frame && frame < vect[i + 1].frame)
+            return i;
+    }
+    return -1;
+}
+
+static float
+clamp(float angle)
+{
+    while (angle < 0.f)
+        angle += 360.f;
+    while (angle >= 360.f)
+        angle -= 360.f;
+    return angle;
 }
 
 float

@@ -34,7 +34,7 @@ GameObject::attach(size_t id)
 void
 GameObject::detach(size_t id)
 {
-    for (int i  = 0; i < _components.size(); ++i)
+    for (unsigned i  = 0; i < _components.size(); ++i)
     {
         if (_components[i]->id() == id)
         {

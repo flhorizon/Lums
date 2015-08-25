@@ -11,8 +11,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#define _CRT_SECURE_NO_WARNINGS
-
 #include <map>
 #include <cmath>
 #include <iostream>

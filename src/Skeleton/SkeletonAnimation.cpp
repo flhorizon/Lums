@@ -49,7 +49,7 @@ SkeletonAnimation::loadFromFile(std::ifstream& file)
 void
 SkeletonAnimation::computeLength()
 {
-    int max = 0;
+    unsigned max = 0;
 
     for (auto& b : bones)
     {

@@ -14,7 +14,8 @@
 #ifndef LUMS_COMMON_HPP
 #define LUMS_COMMON_HPP
 
-#if defined(WIN32) || defined(WIN64)
+#if (defined(WIN32) || defined(WIN64)) && (_MSC_VER < 1900)
+// Visual Studio 14 2015 supports most C++11 features.
 # define constexpr
 #else
 # define MODERN_CPP

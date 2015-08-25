@@ -17,7 +17,6 @@
 #include <LumsInclude/Graphics/Texture.hpp>
 #include <LumsInclude/ExportDll.hpp>
 #include <LumsInclude/Math/Vector.hpp>
-#include <iostream>
 
 namespace lm
 {

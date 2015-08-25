@@ -7,6 +7,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
 if(NOT MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcolor-diagnostics -std=c++11 -fno-exceptions -fno-rtti -Wall -Wno-multichar")
+else()
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4800 /wd4244 /D_HAS_EXCEPTIONS=0 /GR- /D_CRT_SECURE_NO_WARNINGS")
 endif()
 
 find_package(OpenGL REQUIRED)

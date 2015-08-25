@@ -45,6 +45,19 @@ namespace lm
      */
     class Angle
     {
+
+	private:
+		// MSVC hassle: constexpr constructor requires
+		// constexpr static member function definition in scope.
+		constexpr static double
+		clamp(double a)
+		{
+			return (a < 0.0 ? 1.0 + (a - static_cast<long long>(a))
+				: (a >= 1.0 ? a - static_cast<long long>(a) : a));
+		}
+
+		double  _angle;
+
     public:
         /**
          * Create a null angle.
@@ -361,15 +374,6 @@ namespace lm
             return std::tan(toRadians());
         }
         
-    private:
-        constexpr static
-        double clamp(double a)
-        {
-            return (a < 0.0 ? 1.0 + (a - static_cast<long long>(a))
-                    : (a >= 1.0 ? a - static_cast<long long>(a) : a));
-        }
-        
-        double  _angle;
     };
     
 #ifdef MODERN_CPP
