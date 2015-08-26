@@ -61,11 +61,12 @@ LMWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-Window::Window(int w, int h, const char* name)
+Window::Window(int w, int h, const char* name, bool fullscreen)
 {
     HINSTANCE hInstance = GetModuleHandle(NULL);
     static bool launched = false;
 
+	static_cast<void>(fullscreen);
     if (!launched)
     {
         WNDCLASSEX wc;
