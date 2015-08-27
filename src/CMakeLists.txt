@@ -9,7 +9,7 @@ if(APPLE)
 endif()
 
 if(WIN32)
-	file(GLOB OS_SRC "OS/Windows/*.cpp")
+	file(GLOB OS_SRC "OS/WinNT/*.cpp")
 endif()
 
 list(APPEND SRC ${OS_SRC})
