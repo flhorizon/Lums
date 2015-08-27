@@ -134,6 +134,13 @@ Window::swap()
     ReleaseDC(hwnd, dc);
 }
 
+bool
+Window::visible() const
+{
+// TODO
+	return false;
+}
+
 Window::~Window()
 {
     DestroyWindow(static_cast<HWND>(_windowHandle));

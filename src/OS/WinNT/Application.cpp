@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                                            */
-/*    MacOSX/Application.mm                          oooooo       oooooo      */
+/*    WinNT/Application.hpp                          oooooo       oooooo      */
 /*                                                 oooooooooo   oooooooooo    */
 /*                                                         o%%%%%o            */
 /*                                                         %:::::%            */
@@ -11,21 +11,16 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#import <Cocoa/Cocoa.h>
-#import <LumsInclude/Application.hpp>
-#import "LMApplication.hpp"
+#include <LumsInclude/Application.hpp>
 
-using namespace lm;
+namespace lm {
+	namespace Application {
 
-static NSAutoreleasePool* pool;
+		// Application::init() is OSX/Cocoa-specific and does nothing on WinNT.
+		void
+		lm::Application::init()
+		{
 
-void
-Application::init()
-{
-    pool = [NSAutoreleasePool new];
-    [LMApplication sharedApplication];
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"ApplePersistenceIgnoreState"];
-    [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-    [NSApp activateIgnoringOtherApps:YES];
-    [[LMApplication sharedApplication] finishLaunching];
+		}
+	}
 }
