@@ -35,7 +35,7 @@ Shader::Shader(const char* path, Type type, bool resource)
 	else
 		shaderType = GL_FRAGMENT_SHADER;
 	stream.seekg(0, stream.end);
-	auto size = stream.tellg();
+	size_t size = static_cast<size_t>(stream.tellg());
 	stream.seekg(0, stream.beg);
 	char* f = new char[size + 1];
 	stream.read(f, size);
