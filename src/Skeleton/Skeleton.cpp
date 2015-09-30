@@ -95,8 +95,14 @@ Skeleton::updateAnimation()
     if (_finished && !_loop)
         return;
 
-    _frame++;
-    for (unsigned i = 0; i < max; ++i)
+    if (_frame == 0 && !_interpolating)
+        slots = _data->pose.slots;
+
+    auto& animSlots = _animation->slots;
+    for (auto& aSlot : animSlots)
+        aSlot.animateSlot(*this, slots[aSlot.slot], _frame);
+
+    for (auto& aBone : animBones)
     {
         int boneIndex = aBone.bone;
         Bone& bone = bones[boneIndex];

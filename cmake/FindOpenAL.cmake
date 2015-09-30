@@ -18,7 +18,7 @@ if (WIN32)
 		set (WIN_DEBUG "d")
 	endif()
 
-	set (OPENAL_LIBRARIES "${WIN_LIB_PATH}/lib/OpenAL32${WIN_DEBUG}.lib")
+	set (OPENAL_LIBRARY "${WIN_LIB_PATH}/lib/OpenAL32${WIN_DEBUG}.lib")
 	set (OPENAL_INCLUDE_DIRS "${WIN_LIB_PATH}/include/OpenAL")
 
 else()
