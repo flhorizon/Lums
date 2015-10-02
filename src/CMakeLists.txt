@@ -10,6 +10,7 @@ endif()
 
 if(WIN32)
 	file(GLOB OS_SRC "OS/WinNT/*.cpp")
+	include_directories("OS/WinNT")
 endif()
 
 list(APPEND SRC ${OS_SRC})

@@ -20,12 +20,7 @@
 #endif
 
 #ifdef WIN32
-# define WIN32_LEAN_AND_MEAN
-# include <windows.h>
-# include <gl/gl.h>
-// Embedded in ext/msvc/include/gl
-# define GL_GLEXT_PROTOTYPES
-# include <gl/glext.h>
+#include <gl/gl_core_3_2.h>
 #endif
 
 
