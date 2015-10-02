@@ -1,8 +1,0 @@
-
-MSVC Linkage issues and potential runtime suprises:
-
-Some dependencies (freetype.lib to name one) have been compiled in debug mode (linked with MSVCRTD; the debug MSVC C runtime).
-It clashes (in the form of the warning LNK4098) when trying to link a Release build of Lums (which uses the non-debug CRT: MSVCRT).
-A short web search (SO questions) yielded that it may cause weird / unpredicable runtime problems.
-
-Compilation and linkage directives of a lib file can easily be determined by running Visual Studio's ``dumpbin /DIRECTIVES'' command on the .lib  and search (for this purpose) for ''/DEFAULTLIB:'' strings (there's one for each object).
