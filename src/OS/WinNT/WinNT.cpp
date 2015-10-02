@@ -24,6 +24,24 @@ static std::string  appsupport_path;
 
 namespace lm
 {
+    template<typename StringT> static void
+    normalizePath(StringT& path)
+    {
+        using AChar = StringT::value_type;
+        const AChar slash = static_cast<AChar>('/');
+        const AChar bslash = static_cast<AChar>('\\');
+
+        for (;;)
+        {
+            size_t pos = path.find_first_of(bslash);
+
+            if (pos != StringT::npos)
+                path[pos] = slash;
+            else
+                break;
+        }
+    }
+
     const std::string&
     resourcePath()
     {
@@ -38,6 +56,7 @@ namespace lm
 			
 			wcPathStr = wcPath;
             wcPathStr = wcPathStr.substr(0, wcPathStr.find_last_of(L'\\') + 1);
+            normalizePath<std::wstring>(wcPathStr);
 			
 			// Convenient ATL conversion macro.
 			// The API conversion function `WideCharToMultiByte' 
@@ -96,16 +115,7 @@ namespace lm
 		dirPath = std::wstring(oPath) + std::wstring(L"\\") + dirPath;
 		CoTaskMemFree(oPath);
 
-		// Make myPath + "/myfile" fstream.open consistent accross platforms.
-		for (;;)
-		{
-			size_t pos = dirPath.find_first_of(L'\\');
-
-			if (pos != std::wstring::npos)
-				dirPath[pos] = L'/';
-			else
-				break;
-		}
+        normalizePath<std::wstring>(dirPath);
 		appsupport_path = CW2A(dirPath.c_str(), CP_UTF8);
 
 		// This one returns 0 on error. RLY.
