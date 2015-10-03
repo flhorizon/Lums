@@ -11,8 +11,11 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <windows.h>
 #include <LumsInclude/Graphics/Window.hpp>
+#include <LumsInclude/Graphics/OpenGL.hpp>
+
+// TODO: proper graphical warning / note system
+#include <iostream>
 
 using namespace lm;
 
@@ -66,7 +69,7 @@ Window::Window(int w, int h, const char* name, bool fullscreen)
     HINSTANCE hInstance = GetModuleHandle(NULL);
     static bool launched = false;
 
-	static_cast<void>(fullscreen);
+	static_cast<void>(fullscreen); // FIXME
     if (!launched)
     {
         WNDCLASSEX wc;
@@ -111,6 +114,93 @@ Window::Window(int w, int h, const char* name, bool fullscreen)
     ReleaseDC(hwnd, dc);
 }
 
+
+void
+Window::resize(int w, int h, bool fullscreen = false)
+{
+    WINDOWINFO wInfo;
+    HWND hWnd = static_cast<HWND>(_windowHandle);
+    HMONITOR hMonitor;
+    MONITORINFO monInfo;
+    LONG nuX, nuY, monW, monH;
+
+    nuX = nuY = 0;
+    hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
+    monInfo.cbSize = sizeof(MONITORINFO);
+    if (FALSE == GetMonitorInfo(hMonitor, &monInfo))
+        goto resize_do_move;
+    wInfo.cbSize = sizeof(WINDOWINFO);
+    if (FALSE == GetWindowInfo(hWnd, &wInfo))
+        goto resize_do_move;
+
+    // If the window's new H or W is larger than its current monitor's working area,
+    // set X or Y (resp.) to 0 .
+    // Else If upon resizing part of the window should get offscreen,
+    // subtract delta(W or H) from X or Y (resp.) clamped to 0 .
+
+    monW = monInfo.rcWork.right - monInfo.rcWork.left;
+    monH = monInfo.rcWork.bottom - monInfo.rcWork.top; 
+
+    auto computeWinOrigin = [](LONG& nuOrig, LONG monDim, int reqWinDim, LONG winOrig, LONG winEnd, LONG monOrig, LONG monEnd)
+    {
+        if (monDim < reqWinDim)
+        {
+            nuOrig = 0;
+        }
+        else
+        {
+            LONG deltaDim = winEnd - winOrig - reqWinDim;
+
+            nuOrig = (winEnd + deltaDim > monEnd)
+                ? winOrig - ((winEnd + deltaDim) - monEnd)
+                : winOrig;
+        }
+    };
+    computeWinOrigin(nuX, monW, w, wInfo.rcWindow.left, wInfo.rcWindow.right, monInfo.rcWork.left, monInfo.rcWork.right);
+    computeWinOrigin(nuY, monH, h, wInfo.rcWindow.top, wInfo.rcWindow.bottom, monInfo.rcWork.top, monInfo.rcWork.bottom);
+
+resize_do_move:
+    MoveWindow(hWnd, nuX, nuY, w, h, (fullscreen == false));
+    if (fullscreen)
+    {
+
+    }
+}
+
+//
+// If the window is in fullscreen mode, return the primary monitor's dimensions.
+// Else, return the window's main (area-based) monitor's dimensions.
+// It doesn't account for a windows's non client area.
+//
+Vector2i 
+Window::maxSize() const
+{
+    int width, height;
+
+    if (_fullscreen)
+    {
+        width = GetSystemMetrics(SM_CXFULLSCREEN);
+        height = GetSystemMetrics(SM_CYFULLSCREEN);
+    }
+    else
+    {
+        HMONITOR hMonitor = MonitorFromWindow(static_cast<HWND>(_windowHandle), MONITOR_DEFAULTTONEAREST);
+        MONITORINFO monInfo;
+
+        monInfo.cbSize = sizeof(MONITORINFO);
+        if (FALSE == GetMonitorInfo(hMonitor, &monInfo))
+        {
+            // TODO: proper graphical warning
+            std::cerr << "[Lums][Critical] Failed to fetch monitor data !" << std::endl;
+            return{ 0, 0 };
+        }
+        width = monInfo.rcWork.right - monInfo.rcWork.left;
+        height = monInfo.rcWork.bottom - monInfo.rcWork.top;
+    }
+
+    return {width, height};
+}
+
 void   
 Window::pumpEvent()
 {
@@ -137,8 +227,8 @@ Window::swap()
 bool
 Window::visible() const
 {
-// TODO
-	return false;
+// TODO: test
+    return IsWindowVisible(static_cast<HWND>(_windowHandle)) != 0;
 }
 
 Window::~Window()
