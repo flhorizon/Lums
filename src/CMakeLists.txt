@@ -9,7 +9,7 @@ if(APPLE)
 endif()
 
 if(WIN32)
-	file(GLOB OS_SRC "OS/WinNT/*.cpp")
+	file(GLOB OS_SRC "OS/WinNT/*.cpp" "OS/WinNT/*.c")
 	include_directories("OS/WinNT")
 endif()
 

@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stddef.h>
-#define OGL_LOADER_REQUIRE
 #include <gl/gl_core_3_2.h>
 
 #if defined(__APPLE__)

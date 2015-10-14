@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                                            */
-/*    WinNT/Application.hpp                          oooooo       oooooo      */
+/*    WinNT/Capabilities.hpp                         oooooo       oooooo      */
 /*                                                 oooooooooo   oooooooooo    */
 /*                                                         o%%%%%o            */
 /*                                                         %:::::%            */
@@ -11,15 +11,32 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include <LumsInclude/Application.hpp>
+#ifndef CAPABILITIES_HPP
+#define CAPABILITIES_HPP
+
+#include <vector>
 
 namespace lm {
-	namespace Application {
+    namespace winnt {
+        
+        struct DisplaySetting { short width, height, bpp, freq; };
+       
+        class Capabilities
+        {
+        public:
+            Capabilities();
+            Capabilities(const Capabilities&) = delete;
+            Capabilities(Capabilities&& src);
+            Capabilities& operator=(Capabilities&& src);
+			bool exists(const DisplaySetting& sg, bool checkFrequency = false);
+            const std::vector<DisplaySetting>& settings() { return _settings; }
+            DisplaySetting& current(DisplaySetting& sgOut);
+            ~Capabilities();
 
-		void
-		init()
-		{
-            
-		}
-	}
+        private:
+            std::vector<DisplaySetting> _settings;
+        };
+    }
 }
+
+#endif // CAPABILITIES_HPP

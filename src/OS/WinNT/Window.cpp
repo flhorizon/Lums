@@ -13,9 +13,7 @@
 
 #include <LumsInclude/Graphics/Window.hpp>
 #include <LumsInclude/Graphics/OpenGL.hpp>
-
-// TODO: proper graphical warning / note system
-#include <iostream>
+#include "Capabilities.hpp"
 
 using namespace lm;
 
@@ -64,40 +62,162 @@ LMWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-Window::Window(int w, int h, const char* name, bool fullscreen)
+static void
+advertiseDisplaySettingsError(LONG err, const char** name = nullptr)
 {
+    const char* reason;
+
+    switch (err)
+    {
+    case DISP_CHANGE_BADDUALVIEW:
+        reason = "DISP_CHANGE_BADDUALVIEW";
+        break;
+    case DISP_CHANGE_BADFLAGS:
+        reason = "DISP_CHANGE_BADFLAGS";
+        break;
+    case DISP_CHANGE_BADMODE:
+        reason = "DISP_CHANGE_BADMODE";
+        break;
+    case DISP_CHANGE_BADPARAM:
+        reason = "DISP_CHANGE_BADPARAM";
+        break;
+    case DISP_CHANGE_FAILED:
+        reason = "DISP_CHANGE_FAILED";
+        break;
+    case DISP_CHANGE_NOTUPDATED:
+        reason = "DISP_CHANGE_NOTUPDATED";
+        break;
+    case DISP_CHANGE_RESTART:
+        reason = "DISP_CHANGE_RESTART";
+        break;
+    case DISP_CHANGE_SUCCESSFUL:
+        reason = "DISP_CHANGE_RESTART";
+        break;
+    default:
+        reason = "Unknown :(";
+    }
+
+    if (name)
+        *name = reason;
+    else
+        MessageBox(nullptr, reason, "ChangeDisplaySettings failed !", MB_OK);
+}
+
+// Create a dummy window & context to load OpenGL pointers.
+static void
+loadGlApi()
+{
+    HDC dc;
+    int pf;
+    HGLRC gl;
     HINSTANCE hInstance = GetModuleHandle(NULL);
+    HWND hwnd = CreateWindow("LMWindow", "Initializing Lums...", 0, 0, 0, 4, 4, nullptr, nullptr, hInstance, nullptr);
+    int loaderResult;
+
+    if (!hwnd)
+    {
+        MessageBox(NULL, "Window creation failed", "Lums Error", MB_OK | MB_ICONERROR);
+        exit(EXIT_FAILURE);
+    }
+    dc = GetWindowDC(hwnd);
+    pf = ChoosePixelFormat(dc, &pfd);
+    SetPixelFormat(dc, pf, &pfd);
+    gl = wglCreateContext(dc);
+    wglMakeCurrent(dc, gl);
+    ReleaseDC(hwnd, dc);
+
+    loaderResult = ogl_LoadFunctions();
+    if (loaderResult == ogl_LOAD_FAILED)
+    {
+        MessageBox(nullptr, "Lums failed to load OpenGL functions. Are we missing a context ?", "Lums Error", MB_OK | MB_ICONERROR);
+        exit(EXIT_FAILURE);
+    }
+	wglMakeCurrent(nullptr, nullptr);
+    wglDeleteContext(gl);
+	DestroyWindow(hwnd);
+}
+
+static void protectValues() {}
+template<typename T, typename ...Ts> static void
+protectValues(T& n, Ts& ...Args)
+{
+    // A 0 height could lead to dividing by 0 in 3rd party code,
+    // while Windows can BSOD upon a mere ChangeDisplaySettings call with unsupported display modes
+	// 1 is an unreasonnable value but won't cause arithmetic errors.
+    if (n <= static_cast<T>(0))
+        n = static_cast<T>(1);
+    protectValues(Args...);
+}
+
+Window::Window(int w, int h, const char* name, bool fullscreen)
+	: _fullscreen(false)
+    , _fbo()
+    , _texBuffer()
+{
+	DWORD dwStyle, dwExStyle;
+    HINSTANCE hInstance = GetModuleHandle(nullptr);
+    RECT winRekt;
     static bool launched = false;
 
-	static_cast<void>(fullscreen); // FIXME
+    protectValues(w, h);
     if (!launched)
     {
         WNDCLASSEX wc;
 
-        wc.cbSize        = sizeof(WNDCLASSEX);
-        wc.style         = CS_NOCLOSE | CS_OWNDC;
-        wc.lpfnWndProc   = LMWindowProc;
-        wc.cbClsExtra    = 0;
-        wc.cbWndExtra    = 0;
-        wc.hInstance     = hInstance;
-        wc.hIcon         = LoadIcon(NULL, IDI_APPLICATION);
-        wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-        wc.hbrBackground = (HBRUSH)(COLOR_WINDOW+1);
-        wc.lpszMenuName  = NULL;
+        wc.cbSize = sizeof(WNDCLASSEX);
+        wc.style = CS_NOCLOSE | CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+        wc.lpfnWndProc = LMWindowProc;
+        wc.cbClsExtra = 0;
+        wc.cbWndExtra = 0;
+        wc.hInstance = hInstance;
+        wc.hIcon = LoadIcon(NULL, IDI_APPLICATION);
+        wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+        wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_WINDOW + 1);
+        wc.lpszMenuName = NULL;
         wc.lpszClassName = "LMWindow";
-        wc.hIconSm       = LoadIcon(NULL, IDI_APPLICATION);
-        RegisterClassEx(&wc);
+        wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
+        if (0 == RegisterClassEx(&wc))
+        {
+            MessageBox(nullptr, "Failed to register window class", "Lums error", MB_OK | MB_ICONERROR);
+            exit(EXIT_FAILURE);
+        }
+        loadGlApi();
         launched = true;
     }
 
+    if (fullscreen)
+    {
+        dwExStyle = WS_EX_APPWINDOW;
+        dwStyle = WS_POPUP;
+    }
+    else
+    {
+        dwExStyle = WS_EX_WINDOWEDGE | WS_EX_APPWINDOW;
+        dwStyle = WS_OVERLAPPEDWINDOW;
+    }
+
+    winRekt.left = 0;
+    winRekt.right = w;
+    winRekt.top = 0;
+    winRekt.bottom = h;
+    AdjustWindowRectEx(&winRekt, dwStyle, FALSE, dwExStyle);
+
     HWND hwnd = CreateWindowEx(
-        WS_EX_CLIENTEDGE,
-        "LMWindow",
-        name,
-        WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU,
-        CW_USEDEFAULT, CW_USEDEFAULT, w, h,
-        NULL, NULL, hInstance, NULL);
+        dwExStyle
+        , "LMWindow"
+        , name
+        , dwStyle | WS_CLIPSIBLINGS | WS_CLIPCHILDREN
+        , CW_USEDEFAULT, CW_USEDEFAULT
+        , winRekt.right - winRekt.left
+        , winRekt.bottom - winRekt.top
+        , nullptr, nullptr, hInstance, nullptr);
     _windowHandle = hwnd;
+    if (!_windowHandle)
+    {
+        MessageBoxA(nullptr, "Window creation failed", "Lums fucked up", MB_OK);
+        exit(EXIT_FAILURE);
+    }
+
 
     HDC dc = GetWindowDC(hwnd);
     int pf = ChoosePixelFormat(dc, &pfd);
@@ -106,99 +226,197 @@ Window::Window(int w, int h, const char* name, bool fullscreen)
 
     HGLRC gl = wglCreateContext(dc);
     wglMakeCurrent(dc, gl);
-    
+
     _openGlHandle = gl;
 
-    ShowWindow(hwnd, SW_SHOW);
-    UpdateWindow(hwnd);
+    glClearColor(0, 0, 0, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glGenFramebuffers(1, &_fbo);
+    glGenTextures(2, _texBuffer);
+    glGenTextures(1, &_depthBuffer);
+    for (int i = 0; i < 2; ++i)
+    {
+        glBindTexture(GL_TEXTURE_2D, _texBuffer[i]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    }
+    glBindTexture(GL_TEXTURE_2D, _depthBuffer);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+
     ReleaseDC(hwnd, dc);
+    resize(w, h, fullscreen);
 }
 
 
 void
-Window::resize(int w, int h, bool fullscreen = false)
+Window::resize(int w, int h, bool fullscreen)
 {
-    WINDOWINFO wInfo;
     HWND hWnd = static_cast<HWND>(_windowHandle);
-    HMONITOR hMonitor;
-    MONITORINFO monInfo;
-    LONG nuX, nuY, monW, monH;
+    // Vector2i maxSz = prospectiveMaxSize(hWnd, fullscreen);
+    int res;
 
-    nuX = nuY = 0;
-    hMonitor = MonitorFromWindow(hWnd, MONITOR_DEFAULTTONEAREST);
-    monInfo.cbSize = sizeof(MONITORINFO);
-    if (FALSE == GetMonitorInfo(hMonitor, &monInfo))
-        goto resize_do_move;
-    wInfo.cbSize = sizeof(WINDOWINFO);
-    if (FALSE == GetWindowInfo(hWnd, &wInfo))
-        goto resize_do_move;
-
-    // If the window's new H or W is larger than its current monitor's working area,
-    // set X or Y (resp.) to 0 .
-    // Else If upon resizing part of the window should get offscreen,
-    // subtract delta(W or H) from X or Y (resp.) clamped to 0 .
-
-    monW = monInfo.rcWork.right - monInfo.rcWork.left;
-    monH = monInfo.rcWork.bottom - monInfo.rcWork.top; 
-
-    auto computeWinOrigin = [](LONG& nuOrig, LONG monDim, int reqWinDim, LONG winOrig, LONG winEnd, LONG monOrig, LONG monEnd)
-    {
-        if (monDim < reqWinDim)
-        {
-            nuOrig = 0;
-        }
-        else
-        {
-            LONG deltaDim = winEnd - winOrig - reqWinDim;
-
-            nuOrig = (winEnd + deltaDim > monEnd)
-                ? winOrig - ((winEnd + deltaDim) - monEnd)
-                : winOrig;
-        }
-    };
-    computeWinOrigin(nuX, monW, w, wInfo.rcWindow.left, wInfo.rcWindow.right, monInfo.rcWork.left, monInfo.rcWork.right);
-    computeWinOrigin(nuY, monH, h, wInfo.rcWindow.top, wInfo.rcWindow.bottom, monInfo.rcWork.top, monInfo.rcWork.bottom);
-
-resize_do_move:
-    MoveWindow(hWnd, nuX, nuY, w, h, (fullscreen == false));
-    if (fullscreen)
-    {
-
-    }
-}
-
-//
-// If the window is in fullscreen mode, return the primary monitor's dimensions.
-// Else, return the window's main (area-based) monitor's dimensions.
-// It doesn't account for a windows's non client area.
-//
-Vector2i 
-Window::maxSize() const
-{
-    int width, height;
-
+    protectValues(w, h);
     if (_fullscreen)
     {
-        width = GetSystemMetrics(SM_CXFULLSCREEN);
-        height = GetSystemMetrics(SM_CYFULLSCREEN);
+        // If we were already in fullscreen,
+        // we need to reset the display in any case.
+        if ((res = ChangeDisplaySettings(nullptr, 0)) != DISP_CHANGE_SUCCESSFUL)
+        {
+            char text[2048];
+            const char* reason;
+
+            advertiseDisplaySettingsError(res, &reason);
+            snprintf(text, sizeof(text), "Failed to ChangeDisplaySettings: %s", reason);
+            MessageBox(hWnd, text, "Lums error", MB_OK | MB_ICONERROR);
+            return;
+        }
+    }
+    LONG_PTR lpStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+    LONG_PTR lpExStyle = 0;
+    
+    // Set window style, ext. style, cursor visibility
+    if (!fullscreen)
+    {
+        lpExStyle |= WS_EX_WINDOWEDGE | WS_EX_APPWINDOW;
+        lpStyle |= WS_OVERLAPPEDWINDOW;
+        ShowCursor(TRUE);
     }
     else
     {
-        HMONITOR hMonitor = MonitorFromWindow(static_cast<HWND>(_windowHandle), MONITOR_DEFAULTTONEAREST);
-        MONITORINFO monInfo;
+        lpExStyle |= WS_EX_APPWINDOW;
+        lpStyle |= WS_POPUP;
+        ShowCursor(FALSE);
+    }
 
-        monInfo.cbSize = sizeof(MONITORINFO);
-        if (FALSE == GetMonitorInfo(hMonitor, &monInfo))
+    // Perform fullscreen specifics
+    if (fullscreen)
+    {
+        DEVMODE dmScreenSettings;
+        winnt::Capabilities cap;
+        winnt::DisplaySetting currentDs, userSupplDs;
+        int res;
+
+        dmScreenSettings.dmSize = sizeof(DEVMODE);
+        userSupplDs = cap.current(currentDs);
+        userSupplDs.width = w;
+        userSupplDs.height = h;
+        if (cap.exists(userSupplDs))
         {
-            // TODO: proper graphical warning
-            std::cerr << "[Lums][Critical] Failed to fetch monitor data !" << std::endl;
-            return{ 0, 0 };
+            // Then use the provided width and height.
+            dmScreenSettings.dmPelsWidth = w;
+            dmScreenSettings.dmPelsHeight = h;
         }
+        else
+        {
+            // Fallback on current display mode (i.e.: desktop, most likely)
+            dmScreenSettings.dmPelsWidth = w = currentDs.width;
+            dmScreenSettings.dmPelsHeight = h = currentDs.height;
+        }
+     
+        dmScreenSettings.dmBitsPerPel = currentDs.bpp;
+		// Not taking the hassle to set frequency; hope it's auto selected
+        dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
+        if ((res = ChangeDisplaySettings(&dmScreenSettings, CDS_FULLSCREEN)) != DISP_CHANGE_SUCCESSFUL)
+        {
+            char text[2048];
+            const char* reason;
+
+            advertiseDisplaySettingsError(res, &reason);
+            snprintf(text, sizeof(text), "Failed to ChangeDisplaySettings: %s", reason);
+            MessageBox(hWnd, text, "Lums error", MB_OK | MB_ICONERROR);
+            return;
+        }
+    }
+    _fullscreen = fullscreen;
+
+    if (0 == SetWindowLongPtr(hWnd, GWL_STYLE, lpStyle)
+        || 0 == SetWindowLongPtr(hWnd, GWL_EXSTYLE, lpExStyle))
+    {
+        MessageBox(hWnd, "Failed to set window style", "Lums error", MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    RECT winRekt = { 0, 0, w, h };
+    AdjustWindowRectEx(&winRekt
+        , static_cast<DWORD>(lpStyle)
+        , FALSE
+        , static_cast<DWORD>(lpExStyle)
+        );
+
+    // Keep the window onscreen.
+    if (winRekt.left < 0)
+    {
+        winRekt.right -= winRekt.left;
+        winRekt.left = 0;
+    }
+    if (winRekt.top < 0)
+    {
+        winRekt.bottom -= winRekt.top;
+        winRekt.top = 0;
+    }
+    if (FALSE == SetWindowPos(hWnd, HWND_TOP, winRekt.left, winRekt.top, winRekt.right, winRekt.bottom, SWP_SHOWWINDOW))
+    {
+        MessageBox(hWnd, "Failed to SetwindowPos", "Lums error", MB_OK | MB_ICONERROR);
+        return;
+    }
+
+    _size = { w, h };
+
+    glViewport(0, 0, w, h);
+    glBindFramebuffer(GL_FRAMEBUFFER, _fbo);
+    glBindTexture(GL_TEXTURE_2D, _texBuffer[0]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, nullptr);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, _texBuffer[0], 0);
+    glBindTexture(GL_TEXTURE_2D, _texBuffer[1]);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, nullptr);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, _texBuffer[1], 0);
+    glBindTexture(GL_TEXTURE_2D, _depthBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT24, w, h, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_SHORT, nullptr);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, _depthBuffer, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    ShowWindow(hWnd, SW_SHOW);
+    SetForegroundWindow(hWnd);
+    SetFocus(hWnd);
+    UpdateWindow(hWnd);
+}
+
+static Vector2i
+prospectiveMaxSize(const HWND hWnd, bool fullscreen)
+{
+    int width, height;
+    HMONITOR hMonitor = MonitorFromPoint({0, 0}, MONITOR_DEFAULTTOPRIMARY);
+    MONITORINFO monInfo;
+
+    monInfo.cbSize = sizeof(MONITORINFO);
+    if (FALSE == GetMonitorInfo(hMonitor, &monInfo))
+        return{ 1, 1 };
+    if (fullscreen)
+    {
+        width = monInfo.rcMonitor.right - monInfo.rcMonitor.left;
+        height = monInfo.rcMonitor.bottom - monInfo.rcMonitor.top;
+    }
+    else
+    {
         width = monInfo.rcWork.right - monInfo.rcWork.left;
         height = monInfo.rcWork.bottom - monInfo.rcWork.top;
     }
+    return{ width, height };
+}
 
-    return {width, height};
+Vector2i
+Window::maxSize() const
+{
+    return prospectiveMaxSize(static_cast<HWND>(_windowHandle), _fullscreen);
 }
 
 void   
@@ -227,11 +445,14 @@ Window::swap()
 bool
 Window::visible() const
 {
-// TODO: test
     return IsWindowVisible(static_cast<HWND>(_windowHandle)) != 0;
 }
 
 Window::~Window()
 {
+    if (_fullscreen && visible())
+        ChangeDisplaySettings(nullptr, 0);
+    wglMakeCurrent(nullptr, nullptr);
+    wglDeleteContext(static_cast<HGLRC>(_openGlHandle));
     DestroyWindow(static_cast<HWND>(_windowHandle));
 }
