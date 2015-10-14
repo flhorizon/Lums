@@ -1607,7 +1607,6 @@ extern void (CODEGEN_FUNCPTR *_ptrc_glTexImage3DMultisample)(GLenum target, GLsi
 extern void (CODEGEN_FUNCPTR *_ptrc_glWaitSync)(GLsync sync, GLbitfield flags, GLuint64 timeout);
 #define glWaitSync _ptrc_glWaitSync
 
-#ifdef OGL_LOADER_REQUIRE
 enum ogl_LoadStatus
 {
 	ogl_LOAD_FAILED = 0,
@@ -1619,7 +1618,6 @@ int ogl_LoadFunctions();
 int ogl_GetMinorVersion(void);
 int ogl_GetMajorVersion(void);
 int ogl_IsVersionGEQ(int majorVersion, int minorVersion);
-#endif /* OGL_LOADER_REQUIRE */
 
 #ifdef __cplusplus
 }

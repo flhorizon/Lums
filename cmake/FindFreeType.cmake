@@ -13,8 +13,12 @@ if (WIN32)
 	if (${CMAKE_SIZEOF_VOID_P} EQUAL 8)
 		set (WIN_LIB_PATH "${WIN_LIB_PATH}64")
 	endif()
+	
+	if (CMAKE_BUILD_TYPE MATCHES "Debug")
+		set (WIN_DEBUG "d")
+	endif()
 
-	set (FREETYPE_LIBRARIES "${WIN_LIB_PATH}/lib/freetype.lib")
+	set (FREETYPE_LIBRARIES "${WIN_LIB_PATH}/lib/freetype26${WIN_DEBUG}.lib")
 	set (FREETYPE_INCLUDE_DIRS "${WIN_LIB_PATH}/include")
 
 else()
