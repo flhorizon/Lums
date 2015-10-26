@@ -18,38 +18,58 @@ if (WIN32)
 		set (WIN_DEBUG "d")
 	endif()
 
-	set (OPENAL_LIBRARY "${WIN_LIB_PATH}/lib/OpenAL32${WIN_DEBUG}.lib")
-	set (OPENAL_INCLUDE_DIRS "${WIN_LIB_PATH}/include/OpenAL")
-
-else()
-
-	find_path(OPENAL_INCLUDE_DIR al.h
+	#set (OPENAL_LIBRARY "${WIN_LIB_PATH}/lib/OpenAL32${WIN_DEBUG}.lib")
+    find_library(OPENAL_LIBRARY
+        NAMES OpenAL al openal OpenAL32
+        HINTS
+		ENV OPENALDIR
+		PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64
+		PATHS
+        ${WIN_LIB_PATH}
+    )
+    
+       
+	#set (OPENAL_INCLUDE_DIRS "${WIN_LIB_PATH}/include/OpenAL")    
+    find_path(OPENAL_INCLUDE_DIR al.h
 		HINTS
 		ENV OPENALDIR
 		PATH_SUFFIXES include/AL include/OpenAL include
 		PATHS
-		~/Library/Frameworks
-		/Library/Frameworks
-		/sw # Fink
-		/opt/local # DarwinPorts
-		/opt/csw # Blastwave
-		/opt
+		${WIN_LIB_PATH}
 	)
-	
-	find_library(OPENAL_LIBRARY
-		NAMES OpenAL al openal OpenAL32
-		HINTS
-		ENV OPENALDIR
-		PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64
-		PATHS
-		~/Library/Frameworks
-		/Library/Frameworks
-		/sw
-		/opt/local
-		/opt/csw
-		/opt
-	)
+    
+    message(STATUS "Found OpenAL: ${OPENAL_LIBRARY}")
+
+else()
+
+	#find_path(OPENAL_INCLUDE_DIR al.h
+	#	HINTS
+	#	ENV OPENALDIR
+	#	PATH_SUFFIXES include/AL include/OpenAL include
+	#	PATHS
+	#	~/Library/Frameworks
+	#	/Library/Frameworks
+	#	/sw # Fink
+	#	/opt/local # DarwinPorts
+	#	/opt/csw # Blastwave
+	#	/opt
+	#)
+	#
+	#find_library(OPENAL_LIBRARY
+	#	NAMES OpenAL al openal OpenAL32
+	#	HINTS
+	#	ENV OPENALDIR
+	#	PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64
+	#	PATHS
+	#	~/Library/Frameworks
+	#	/Library/Frameworks
+	#	/sw
+	#	/opt/local
+	#	/opt/csw
+	#	/opt
+	#)
+    
+    include(${CMAKE_ROOT}/Modules/FindOpenAL.cmake)
 
 endif()
 
-message(STATUS "Found OpenAL: ${OPENAL_LIBRARIES}")
