@@ -33,89 +33,89 @@ namespace lm
         /**
          * Create a texture
          */
-        Texture();
+        LUMS_EXPORTED Texture();
 
         /**
          * Get the texture width
          * @return The texture width
          */
-        float           width() const { return _width; }
+        float   width() const { return _width; }
 
         /**
          * Get the texture height
          * @return The texture height
          */
-        float           height() const { return _height; }
+        float   height() const { return _height; }
 
         /**
          * Get the texture buffer width
          * @return The texture buffer width
          */
-        float           bufferWidth() const { return _bufferWidth; }
+        float   bufferWidth() const { return _bufferWidth; }
 
         /**
          * Get the texture buffer height
          * @return The texture buffer height
          */
-        float           bufferHeight() const { return _bufferHeight; }
+        float   bufferHeight() const { return _bufferHeight; }
 
         /**
          * Set the texture image.
          * @param image The image
          */
-        void            setImage(Image& image);
+        LUMS_EXPORTED void    setImage(Image& image);
 
         /**
          * Load the texture
          */
-        void            load();
+        LUMS_EXPORTED void  load();
 
         /**
          * Unload the texture
          */
-        void            unload();
+        LUMS_EXPORTED void    unload();
 
         /**
          * Bind the texture
          */
-        void            bind() const;
+        LUMS_EXPORTED void  bind() const;
 
         /**
          * Add a rect to the texture atlas
          * @param rect The rect to be added
          */
-        void            pushAtlas(const Rect2f& rect);
+        LUMS_EXPORTED void  pushAtlas(const Rect2f& rect);
 
         /**
          * Cut the texture into equal parts
          * @param w the texture part width
          * @param h the texture part height
          */
-        void            pushAtlas(int w, int h);
+        LUMS_EXPORTED void    pushAtlas(int w, int h);
 
-        void            pushAtlas(const std::string& path, bool resource = true);
+        LUMS_EXPORTED void    pushAtlas(const std::string& path, bool resource = true);
 
-        void            resetAtlas() { _atlas.clear(); }
+        void    resetAtlas() { _atlas.clear(); }
 
         /**
          * Get a rect from the atlas
          * @param i The atlas index
          * @return The rect
          */
-        const Rect2f&   atlas(std::size_t i) const;
+        LUMS_EXPORTED const Rect2f&   atlas(std::size_t i) const;
 
         /**
          * Check wether a texture is loaded
          * @return true if the texture is loaded, false otherwise
          */
-        bool            loaded() const;
+        LUMS_EXPORTED bool  loaded() const;
 
-        void            loadBinary(const BObject& object);
+        LUMS_EXPORTED void  loadBinary(const BObject& object);
 
         /**
          * Texture dtor
          */
-        ~Texture();
+        LUMS_EXPORTED ~Texture();
 
     private:
         GLuint              _texture;

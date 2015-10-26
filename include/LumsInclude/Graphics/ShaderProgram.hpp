@@ -18,6 +18,7 @@
 #include <LumsInclude/Graphics/OpenGL.hpp>
 #include <LumsInclude/Math/Matrix.hpp>
 #include <LumsInclude/Binary/BObject.hpp>
+#include <LumsInclude/ExportDll.hpp>
 
 namespace lm
 {
@@ -32,7 +33,7 @@ namespace lm
 		/**
 		 * Construct a shader program
 		 */
-		ShaderProgram();
+        LUMS_EXPORTED ShaderProgram();
 
 		/**
 		 * Get the raw shader program
@@ -59,24 +60,24 @@ namespace lm
 		 * Attach a shader to the program
 		 * @param shader The shader to attach
 		 */
-		void	attach(const Shader& shader);
+        LUMS_EXPORTED void	attach(const Shader& shader);
 
 		/**
 		 * Link the shader
 		 */
-		void	link();
+        LUMS_EXPORTED void	link();
 
 		/**
 		 * Use the shader
 		 */
-		void	use() const;
+		LUMS_EXPORTED void	use() const;
 
-        void    loadBinary(const BObject& object);
+        LUMS_EXPORTED void    loadBinary(const BObject& object);
 
 		/**
 		 * Shader program dtor
 		 */
-		~ShaderProgram();
+        LUMS_EXPORTED ~ShaderProgram();
 
 	private:
 		GLuint				_program;

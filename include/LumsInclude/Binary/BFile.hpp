@@ -16,6 +16,7 @@
 
 #include <string>
 #include <LumsInclude/Binary/BValue.hpp>
+#include <LumsInclude/ExportDll.hpp>
 
 namespace lm
 {
@@ -40,13 +41,13 @@ namespace lm
         };
 
     public:
-        BFile();
-        void            open(const std::string& path, bool resource = true);
+        LUMS_EXPORTED   BFile();
+        LUMS_EXPORTED   void            open(const std::string& path, bool resource = true);
         int             size() const { return _size; }
         const BValue&   operator[](int i) const { return _values[i]; }
         Iterator        begin() const { return Iterator(*this, 0); }
         Iterator        end() const { return Iterator(*this, _size); }
-        ~BFile();
+        LUMS_EXPORTED   ~BFile();
 
     private:
         int         _size;

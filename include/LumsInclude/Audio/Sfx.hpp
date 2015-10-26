@@ -16,6 +16,7 @@
 
 #include <vector>
 #include <LumsInclude/Audio/Sound.hpp>
+#include <LumsInclude/ExportDll.hpp>
 
 namespace lm
 {
@@ -26,12 +27,12 @@ namespace lm
     {
     public:
 
-        static void    setGlobalVolume(float volume);
+        static LUMS_EXPORTED void    setGlobalVolume(float volume);
 
         /**
          * Create an empty sound effect
          */
-        Sfx();
+        LUMS_EXPORTED Sfx();
 
         /**
          * Deleted ctor
@@ -42,7 +43,7 @@ namespace lm
          * Move-construct ctor
          * @param rhs Source sound effect
          */
-        Sfx(Sfx&& rhs);
+        LUMS_EXPORTED Sfx(Sfx&& rhs);
 
         /**
          * Deleted assignment operator
@@ -53,36 +54,36 @@ namespace lm
          * Move-assign a sound effect
          * @param rhs Source sound effect
          */
-        Sfx&  operator=(Sfx&& rhs);
+        LUMS_EXPORTED Sfx&  operator=(Sfx&& rhs);
 
         /**
          * Play the loaded sound effect
          * @param pos Source position
          */
-        void    play(Vector3f pos = {0.f, 0.f, 0.f});
+        LUMS_EXPORTED void    play(Vector3f pos = {0.f, 0.f, 0.f});
 
         /**
          * Pause the loaded sound effect
          */
-        void    pause();
+        LUMS_EXPORTED void    pause();
 
         /**
          * Stop the loaded sound effect
          */
-        void    stop();
+        LUMS_EXPORTED void    stop();
 
         /**
          * Set the volume of the loaded sound effect
          * @param volume The volume, 0 being silent and 1 the loudest
          */
-        void    setVolume(float volume);
+        LUMS_EXPORTED void    setVolume(float volume);
 
-        void    clearSources();
+        LUMS_EXPORTED void    clearSources();
 
         /**
          * Sound dtor
          */
-        ~Sfx();
+        LUMS_EXPORTED ~Sfx();
 
     private:
         std::vector<ALuint> _sources;

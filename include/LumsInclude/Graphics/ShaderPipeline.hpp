@@ -18,6 +18,7 @@
 #include <LumsInclude/Graphics/ShaderProgram.hpp>
 #include <LumsInclude/Graphics/VertexBuffer.hpp>
 #include <LumsInclude/Graphics/Window.hpp>
+#include <LumsInclude/ExportDll.hpp>
 
 namespace lm
 {
@@ -32,46 +33,46 @@ namespace lm
 		/**
 		 * Create a shader pipeline
 		 */
-		ShaderPipeline();
+        LUMS_EXPORTED ShaderPipeline();
 
 		/**
 		 * Set the shader pipeline active window
 		 * @param win A reference to a window
 		 */
-		void	setWindow(const Window& win);
+        LUMS_EXPORTED void	setWindow(const Window& win);
 
 		/**
 		 * Bind the pipeline.
 		 * You should call this function before rendering
 		 */
-		void	bind();
+        LUMS_EXPORTED void	bind();
 
 		/**
 		 * Append a shader to the pipeline
 		 * @param shader The shader to append
 		 */
-		void	append(const ShaderProgram& shader);
+        LUMS_EXPORTED void	append(const ShaderProgram& shader);
 
 		/**
 		 * Prepend a shader to the pipeline
 		 * @param shader The shader to prepend
 		 */
-		void	prepend(const ShaderProgram& shader);
+        LUMS_EXPORTED void	prepend(const ShaderProgram& shader);
 
 		/**
 		 * Remove every shader from the pipeline
 		 */
-		void	clear();
+        LUMS_EXPORTED void	clear();
 
 		/**
 		 * Render the pipeline to screen
 		 */
-		void	render();
+        LUMS_EXPORTED void	render();
 
 		/**
 		 * Shader pipeline dtor
 		 */
-		~ShaderPipeline();
+        LUMS_EXPORTED ~ShaderPipeline();
 
 	private:
 		const Window*											_win;

@@ -14,10 +14,12 @@
 #ifndef LUMS_GRAPHICS_HPP
 #define LUMS_GRAPHICS_HPP
 
+#include <LumsInclude/ExportDll.hpp>
+
 namespace lm
 {
-    void    setGlobalScale(float scale);
-    float   globalScale();
+    LUMS_EXPORTED   void    setGlobalScale(float scale);
+    LUMS_EXPORTED   float   globalScale();
 }
 
 #endif

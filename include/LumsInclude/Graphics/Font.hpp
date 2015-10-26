@@ -25,7 +25,7 @@ namespace lm
      */
     namespace Freetype
     {
-        void init();
+        LUMS_EXPORTED void init();
     }
     /**
      * @endcond
@@ -81,7 +81,7 @@ namespace lm
         /**
          * Construct an empty font
          */
-        Font();
+        LUMS_EXPORTED Font();
 
         /**
          * Get the texture associated with the font.
@@ -109,31 +109,31 @@ namespace lm
          * @param path The load path
          * @param resource If true, the path is relative to the resource path
          */
-        void    setPath(const std::string& path, bool resource = true);
+        LUMS_EXPORTED void  setPath(const std::string& path, bool resource = true);
 
         /**
          * Set the font size in points
          * size The size
          */
-        void    setSize(float size);
+        LUMS_EXPORTED void  setSize(float size);
 
         /**
          * Load the font
          */
-        void    load();
+        LUMS_EXPORTED void  load();
 
         /**
          * Unload the font
          */
-        void    unload();
+        LUMS_EXPORTED void  unload();
 
         /**
          * Check wether the font was loaded.
          * @return True if the font was loaded.
          */
-        bool    loaded() const;
+        LUMS_EXPORTED bool  loaded() const;
 
-        void    loadBinary(const BObject& object);
+        LUMS_EXPORTED void  loadBinary(const BObject& object);
 
         /**
          * Font dtor

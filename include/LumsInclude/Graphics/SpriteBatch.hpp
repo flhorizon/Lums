@@ -24,17 +24,17 @@ namespace lm
     class SpriteBatch : public StaticSpriteBatch
     {
     public:
-        SpriteBatch(GLenum hint = GL_STREAM_DRAW);
+        LUMS_EXPORTED SpriteBatch(GLenum hint = GL_STREAM_DRAW);
         
     	/**
          * Begin the batch
          */
-        void    begin();
+        LUMS_EXPORTED void    begin();
 
         /**
          * End the batch
          */
-        void    end();
+        LUMS_EXPORTED void    end();
 
      protected:
      	/**

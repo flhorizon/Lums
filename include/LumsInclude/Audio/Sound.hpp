@@ -30,7 +30,7 @@ namespace lm
      */
     namespace Audio
     {
-        void    init();
+        LUMS_EXPORTED void    init();
     }
     /**
      * @endcond
@@ -42,35 +42,35 @@ namespace lm
     class Sound
     {
     public:
-        Sound();
+        LUMS_EXPORTED Sound();
         
-        Sound(Sound&& rhs);
+        LUMS_EXPORTED Sound(Sound&& rhs);
 
-        Sound& operator=(Sound&& rhs);
+        LUMS_EXPORTED Sound& operator=(Sound&& rhs);
         /**
          * Set the loading path for the sound
          * @param name The file path
          * @param resource If true, path is relative to the resource path
          */
-        void                 setPath(const std::string name, bool resource = true);
+        LUMS_EXPORTED void  setPath(const std::string name, bool resource = true);
 
-        void                 loadBinary(const BObject& object);
+        LUMS_EXPORTED void  loadBinary(const BObject& object);
 
         /**
          * Load the sound
          */
-        void                 load();
+        LUMS_EXPORTED void  load();
 
         /**
          * Check wether the sound is loaded
          * @return true if the sound is loaded, false otherwise
          */
-        bool                 loaded();
+        LUMS_EXPORTED bool  loaded();
 
         /**
          * Unload the sound
          */
-        void                 unload();
+        LUMS_EXPORTED void  unload();
 
         /**
          * Play a sound

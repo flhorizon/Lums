@@ -163,16 +163,16 @@ namespace lm
 		/**
 		 * Component ctor
 		 */
-		Component();
+        LUMS_EXPORTED Component();
 		
 		virtual size_t 	id() = 0;
 
-		virtual void	init(GameObject& object) {}
+        LUMS_EXPORTED virtual void	init(GameObject& object) {}
 
-		void			loadBinary(const BObject& object);
+        LUMS_EXPORTED void			loadBinary(const BObject& object);
 
 		template <typename... Ts>
-		void
+        void
 		recvMessage(GameObject& go, size_t id, Ts... params)
 		{
 			auto cb = ComponentBindings::instance().getMessage(this->id(), id);
@@ -183,7 +183,7 @@ namespace lm
 		}
 
 		virtual void
-		update(lm::GameObject& object)
+        update(lm::GameObject& object)
 		{
 
 		}
@@ -191,7 +191,7 @@ namespace lm
 		/**
 		 * Pure virtual dtor
 		 */
-		virtual ~Component() = 0;
+        LUMS_EXPORTED virtual ~Component() = 0;
 	};
 }
 

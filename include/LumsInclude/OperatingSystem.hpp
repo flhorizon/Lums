@@ -15,6 +15,7 @@
 #define LUMS_OPERATINGSYSTEM_HPP
 
 #include <string>
+#include <LumsInclude/ExportDll.hpp>
 
 namespace lm
 {
@@ -24,16 +25,16 @@ namespace lm
      * Else, it's the folder containing the executable.
      * @return A const reference to a resource path string.
      */
-    const std::string&  resourcePath();
+    LUMS_EXPORTED const std::string&  resourcePath();
 
     /**
      * Get the user's application data path.
      * On Mac OS X, this is $HOME/Applications/Application Support/Forsaken Souls.
      * @return A const reference to the application data path string.
      */
-    const std::string&  userDataPath();
+    LUMS_EXPORTED const std::string&  userDataPath();
 
-    int                 mkAppDataDir(const char * dirname);
+    LUMS_EXPORTED int   mkAppDataDir(const char * dirname);
 }
 
 #endif

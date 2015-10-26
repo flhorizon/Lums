@@ -16,6 +16,7 @@
 
 #include <mutex>
 #include <LumsInclude/Audio/Sound.hpp>
+#include <LumsInclude/ExportDll.hpp>
 
 #define NB_BUFFERS  3
 
@@ -28,11 +29,11 @@ namespace lm
     {
     public:
 
-        static void     setGlobalVolume(float volume);
+        static LUMS_EXPORTED void     setGlobalVolume(float volume);
         /**
          * Create an empty music
          */
-        Music();
+        LUMS_EXPORTED Music();
 
         /**
          * Deleted ctor
@@ -43,7 +44,7 @@ namespace lm
          * Move-construct a music
          * @param rhs Source music
          */
-        Music(Music&& rhs);
+        LUMS_EXPORTED Music(Music&& rhs);
 
         /**
          * Deleted assignment operator
@@ -54,36 +55,36 @@ namespace lm
          * Move-assign a music
          * @param rhs Source music
          */
-        Music&  operator=(Music&& rhs);
+        LUMS_EXPORTED Music&  operator=(Music&& rhs);
 
         /**
          * Play the loaded music
          * @param pos Source position
          */
-        void    play(Vector3f pos = {0.f, 0.f, 0.f});
+        LUMS_EXPORTED void    play(Vector3f pos = {0.f, 0.f, 0.f});
 
         /**
          * Pause the loaded music
          */
-        void    pause();
+        LUMS_EXPORTED void    pause();
 
         /**
          * Stop the loaded music
          */
-        void    stop();
+        LUMS_EXPORTED void    stop();
 
         /**
          * Set the volume of loaded music
          * @param volume The volume, 0 being silent and 1 the loudest
          */
-        void    setVolume(float volume);
+        LUMS_EXPORTED void    setVolume(float volume);
 
-        void   updateVolume();
+        LUMS_EXPORTED void   updateVolume();
         
         /**
          * Music dtor
          */
-        ~Music();
+        LUMS_EXPORTED ~Music();
 
     private:
         enum State

@@ -32,7 +32,7 @@ namespace lm
         /**
          * Create a static sprite batch
          */
-        StaticSpriteBatch(GLenum hint = GL_STATIC_DRAW);
+        LUMS_EXPORTED StaticSpriteBatch(GLenum hint = GL_STATIC_DRAW);
 
         LUMS_EXPORTED void              draw(const Texture& texture,
                                              int atlas,
@@ -176,7 +176,7 @@ namespace lm
         /**
          * Sprite batch dtor
          */
-        ~StaticSpriteBatch();
+        LUMS_EXPORTED ~StaticSpriteBatch();
 
     protected:
         /**

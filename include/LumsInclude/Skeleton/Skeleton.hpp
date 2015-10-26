@@ -16,28 +16,29 @@
 
 #include <LumsInclude/Skeleton/SkeletonPose.hpp>
 #include <LumsInclude/Skeleton/SkeletonData.hpp>
+#include <LumsInclude/ExportDll.hpp>
 
 namespace lm
 {
     class Skeleton : public SkeletonPose
     {
     public:
-        Skeleton();
-        explicit Skeleton(const SkeletonData& data);
+        LUMS_EXPORTED Skeleton();
+        LUMS_EXPORTED explicit Skeleton(const SkeletonData& data);
 
-        void    setToPose();
+        LUMS_EXPORTED void    setToPose();
         void    setFlip(bool flip) { _flipX = flip; };
         bool    flip() const { return _flipX; }
         int     frame() const { return _frame; }
-        void    setAnimation(const char* animation, bool loop = false, bool repeat = false, int interpolation = 0);
-        void    setAnimation(size_t animation, bool loop = false, bool repeat = false, int interpolation = 0);
+        LUMS_EXPORTED void    setAnimation(const char* animation, bool loop = false, bool repeat = false, int interpolation = 0);
+        LUMS_EXPORTED void    setAnimation(size_t animation, bool loop = false, bool repeat = false, int interpolation = 0);
         size_t  animation() const { return _animationHash; }
         void    transformBone(Matrix4f& matrix, int bone) const;
         void    transformSkin(Matrix4f& matrix, int skin) const;
-        void    update();
-        void    updateAnimation();
-        void    applyIk(int target, int bone);
-        void    applyIk(int target, int parent, int child, float duration);
+        LUMS_EXPORTED void    update();
+        LUMS_EXPORTED void    updateAnimation();
+        LUMS_EXPORTED void    applyIk(int target, int bone);
+        LUMS_EXPORTED void    applyIk(int target, int parent, int child, float duration);
         size_t  event() const { return _event; }
         bool    finished() const { return _finished; }
 

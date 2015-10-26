@@ -24,10 +24,10 @@ namespace lm
     class SkeletonBlueprint
     {
     public:
-        SkeletonBlueprint();
-        void        loadBinary(const BObject& object);
-        void        load(const std::string& path, bool resource = true);
-        Skeleton    create() const;
+        LUMS_EXPORTED SkeletonBlueprint();
+        LUMS_EXPORTED void        loadBinary(const BObject& object);
+        LUMS_EXPORTED void        load(const std::string& path, bool resource = true);
+        LUMS_EXPORTED Skeleton    create() const;
         ~SkeletonBlueprint();
 
     private:

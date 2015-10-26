@@ -16,6 +16,7 @@
 
 #include <fstream>
 #include <LumsInclude/Binary/BValue.hpp>
+#include <LumsInclude/ExportDll.hpp>
 
 namespace lm
 {
@@ -40,13 +41,13 @@ namespace lm
             int             _index;
         };
 
-        BObject();
-        BObject(const BObject& rhs);
-        BObject&    operator=(const BObject& rhs);
+        LUMS_EXPORTED   BObject();
+        LUMS_EXPORTED   BObject(const BObject& rhs);
+        LUMS_EXPORTED   BObject&    operator=(const BObject& rhs);
         
         Iterator    begin() const { return Iterator(*this, 0); }
         Iterator    end() const { return Iterator(*this, _size); }
-        void        parse(std::ifstream& file);
+        LUMS_EXPORTED   void        parse(std::ifstream& file);
         
         bool
         hasProperty(const char* str) const
@@ -59,8 +60,8 @@ namespace lm
             return false;
         }
 
-        const BValue& operator[](const char* str) const;
-        ~BObject();
+        LUMS_EXPORTED   const BValue& operator[](const char* str) const;
+        LUMS_EXPORTED   ~BObject();
 
     private:
         int       _size;

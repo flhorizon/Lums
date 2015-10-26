@@ -20,19 +20,20 @@
 #include <type_traits>
 #include <LumsInclude/GameObject/Component.hpp>
 #include <LumsInclude/Math/Vector.hpp>
+#include <LumsInclude/ExportDll.hpp>
 
 namespace lm
 {
 	class GameObject
 	{
 	public:
-		GameObject();
+        LUMS_EXPORTED   GameObject();
 		Component*		attach(const char* name) { return attach(sym(name)); }
-		Component*		attach(size_t id);
+        LUMS_EXPORTED   Component*  attach(size_t id);
 		void			detach(const char* name) { detach(sym(name)); }
-		void			detach(size_t id);
-		void			init();
-		void			update();
+        LUMS_EXPORTED   void    detach(size_t id);
+        LUMS_EXPORTED   void    init();
+        LUMS_EXPORTED   void    update();
 
 		template <typename... Ts>
 		void
@@ -107,7 +108,7 @@ namespace lm
         void    clearTag(const char* tag) { clearTag(sym(tag)); }
         void    clearTag(size_t tag) { _tags.erase(tag); }
 
-		~GameObject();
+        LUMS_EXPORTED   ~GameObject();
 
 		Vector3f position;
 		Vector3f rotation;

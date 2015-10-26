@@ -95,7 +95,7 @@ namespace lm
      */
     namespace internal
     {
-        void    _enableSingleModule(Module module);
+        LUMS_EXPORTED void    _enableSingleModule(Module module);
 
         inline void
         _enableModule()

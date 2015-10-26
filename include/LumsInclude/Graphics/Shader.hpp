@@ -15,6 +15,7 @@
 #define LUMS_SHADER_HPP
 
 #include <LumsInclude/Graphics/OpenGL.hpp>
+#include <LumsInclude/ExportDll.hpp>
 
 namespace lm
 {
@@ -41,7 +42,7 @@ namespace lm
 		 * @param type The shader type
 		 * @param resource If true, path is relative to the resource path
 		 */
-		Shader(const char* path, Type type, bool resource = true);
+		LUMS_EXPORTED Shader(const char* path, Type type, bool resource = true);
 		
 		/**
 		 * Get the raw shader
@@ -56,7 +57,7 @@ namespace lm
 		/**
 		 * Shader dtor
 		 */
-		~Shader();
+        LUMS_EXPORTED ~Shader();
 
 	private:
 		Shader();
