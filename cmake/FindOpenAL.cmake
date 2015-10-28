@@ -14,22 +14,12 @@ if (WIN32)
 		set (WIN_LIB_PATH "${WIN_LIB_PATH}64")
 	endif()
 
-	if (CMAKE_BUILD_TYPE MATCHES "Debug")
-		set (WIN_DEBUG "d")
-	endif()
-
-	#set (OPENAL_LIBRARY "${WIN_LIB_PATH}/lib/OpenAL32${WIN_DEBUG}.lib")
-    find_library(OPENAL_LIBRARY
-        NAMES OpenAL al openal OpenAL32
-        HINTS
-		ENV OPENALDIR
-		PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64
-		PATHS
-        ${WIN_LIB_PATH}
-    )
+    
+    include(${CMAKE_MODULE_PATH}/LmHelperFindLib.cmake)
+    lm_helper_find_lib(OPENAL_LIBRARY OPENALDIR ${WIN_LIB_PATH} OpenAL al openal OpenAL32)
+    lm_helper_find_runtimes(OPENAL_RUNTIME OPENALDIR ${WIN_LIB_PATH} OpenAL al openal OpenAL32)
     
        
-	#set (OPENAL_INCLUDE_DIRS "${WIN_LIB_PATH}/include/OpenAL")    
     find_path(OPENAL_INCLUDE_DIR al.h
 		HINTS
 		ENV OPENALDIR
@@ -38,38 +28,36 @@ if (WIN32)
 		${WIN_LIB_PATH}
 	)
     
-    message(STATUS "Found OpenAL: ${OPENAL_LIBRARY}")
-
 else()
 
-	#find_path(OPENAL_INCLUDE_DIR al.h
-	#	HINTS
-	#	ENV OPENALDIR
-	#	PATH_SUFFIXES include/AL include/OpenAL include
-	#	PATHS
-	#	~/Library/Frameworks
-	#	/Library/Frameworks
-	#	/sw # Fink
-	#	/opt/local # DarwinPorts
-	#	/opt/csw # Blastwave
-	#	/opt
-	#)
-	#
-	#find_library(OPENAL_LIBRARY
-	#	NAMES OpenAL al openal OpenAL32
-	#	HINTS
-	#	ENV OPENALDIR
-	#	PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64
-	#	PATHS
-	#	~/Library/Frameworks
-	#	/Library/Frameworks
-	#	/sw
-	#	/opt/local
-	#	/opt/csw
-	#	/opt
-	#)
+	find_path(OPENAL_INCLUDE_DIR al.h
+		HINTS
+		ENV OPENALDIR
+		PATH_SUFFIXES include/AL include/OpenAL include
+		PATHS
+		~/Library/Frameworks
+		/Library/Frameworks
+		/sw # Fink
+		/opt/local # DarwinPorts
+		/opt/csw # Blastwave
+		/opt
+	)
+	
+	find_library(OPENAL_LIBRARY
+		NAMES OpenAL al openal OpenAL32
+		HINTS
+		ENV OPENALDIR
+		PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64
+		PATHS
+		~/Library/Frameworks
+		/Library/Frameworks
+		/sw
+		/opt/local
+		/opt/csw
+		/opt
+	)
     
-    include(${CMAKE_ROOT}/Modules/FindOpenAL.cmake)
-
 endif()
+
+message(STATUS "Found OpenAL: ${OPENAL_LIBRARY}")
 

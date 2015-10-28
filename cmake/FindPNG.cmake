@@ -16,13 +16,16 @@ if (WIN32)
 		set (WIN_LIB_PATH "${WIN_LIB_PATH}64")
 	endif()
 
-	if (CMAKE_BUILD_TYPE MATCHES "Debug")
-		set (WIN_DEBUG "d")
-	endif()
-
-	set (PNG_LIBRARIES "${WIN_LIB_PATH}/lib/libpng16${WIN_DEBUG}.lib")
-	set (PNG_INCLUDE_DIRS "${WIN_LIB_PATH}/include")
-	set (PNG_RUNTIME "${WIN_LIB_PATH}/bin/libpng16${WIN_DEBUG}.dll")
+    
+    include(${CMAKE_MODULE_PATH}/LmHelperFindLib.cmake)
+    lm_helper_find_lib(PNG_LIBRARIES NO_HINT ${WIN_LIB_PATH} libpng16)
+    lm_helper_find_runtimes(PNG_RUNTIME NO_HINT ${WIN_LIB_PATH} libpng16)
+    
+    find_path(PNG_INCLUDE_DIRS png.h
+		PATH_SUFFIXES include
+		PATHS
+		${WIN_LIB_PATH}
+	)
 
 else()
 

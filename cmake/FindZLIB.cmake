@@ -14,14 +14,16 @@ if (WIN32)
 		set (WIN_LIB_PATH "${WIN_LIB_PATH}64")
 	endif()
 
-	if (CMAKE_BUILD_TYPE MATCHES "Debug")
-		set (WIN_DEBUG "d")
-	endif()
+    include(${CMAKE_MODULE_PATH}/LmHelperFindLib.cmake)
+    lm_helper_find_lib(ZLIB_LIBRARIES NO_HINT ${WIN_LIB_PATH} zlib)
+    lm_helper_find_runtimes(ZLIB_RUNTIME NO_HINT ${WIN_LIB_PATH} zlib)
 
-	set (ZLIB_LIBRARIES "${WIN_LIB_PATH}/lib/zlib${WIN_DEBUG}.lib")
-	set (ZLIB_INCLUDE_DIRS "${WIN_LIB_PATH}/include")
-	set (ZLIB_RUNTIME "${WIN_LIB_PATH}/bin/zlib${WIN_DEBUG}.dll")
-
+    find_path(ZLIB_INCLUDE_DIRS zlib
+		PATH_SUFFIXES include
+		PATHS
+		${WIN_LIB_PATH}
+	)
+    
 else()
 
 	set(ZLIB_SEARCH_PATH
@@ -49,5 +51,5 @@ else()
 
 endif()
 
-message(STATUS "Found zlib: ${ZLIB_LIBRARIES}")
 
+message(STATUS "Found zlib: ${ZLIB_LIBRARIES}")

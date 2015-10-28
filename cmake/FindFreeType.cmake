@@ -14,13 +14,18 @@ if (WIN32)
 		set (WIN_LIB_PATH "${WIN_LIB_PATH}64")
 	endif()
 	
-	if (CMAKE_BUILD_TYPE MATCHES "Debug")
-		set (WIN_DEBUG "d")
-	endif()
-
-	set (FREETYPE_LIBRARIES "${WIN_LIB_PATH}/lib/freetype26${WIN_DEBUG}.lib")
-	set (FREETYPE_INCLUDE_DIRS "${WIN_LIB_PATH}/include")
-
+	
+    include(${CMAKE_MODULE_PATH}/LmHelperFindLib.cmake)
+    lm_helper_find_lib(FREETYPE_LIBRARIES NO_HINT ${WIN_LIB_PATH} freetype freetype26)
+    lm_helper_find_runtimes(FREETYPE_RUNTIME NO_HINT ${WIN_LIB_PATH} freetype freetype26)
+    
+    find_path(FREETYPE_INCLUDE_DIRS ft2build.h
+		PATH_SUFFIXES include
+		PATHS
+		${WIN_LIB_PATH}
+	)
+    
+  
 else()
 
 	set(FREETYPE_SEARCH_PATH

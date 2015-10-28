@@ -14,19 +14,21 @@ if (WIN32)
 		set (WIN_LIB_PATH "${WIN_LIB_PATH}64")
 	endif()
 
-	if (CMAKE_BUILD_TYPE MATCHES "Debug")
-		set (WIN_DEBUG "d")
-	endif()
-
-# So lame... But it works.
-	set (VORBIS_INCLUDE_DIRS "${WIN_LIB_PATH}/include")
-	set (OGG_LIBRARIES "${WIN_LIB_PATH}/lib/libogg${WIN_DEBUG}.lib")
-	set (OGG_RUNTIME "${WIN_LIB_PATH}/bin/libogg${WIN_DEBUG}.dll")
-	set (VORBISFILE_LIBRARIES "${WIN_LIB_PATH}/lib/libvorbisfile${WIN_DEBUG}.lib")
-	set (VORBISFILE_RUNTIME "${WIN_LIB_PATH}/bin/libvorbisfile${WIN_DEBUG}.dll")
-	set (VORBIS_LIBRARIES "${WIN_LIB_PATH}/lib/libvorbis${WIN_DEBUG}.lib")
-	set (VORBIS_RUNTIME "${WIN_LIB_PATH}/bin/libvorbis${WIN_DEBUG}.dll")
-	
+    
+    include(${CMAKE_MODULE_PATH}/LmHelperFindLib.cmake)
+    
+    lm_helper_find_lib(VORBIS_LIBRARIES NO_HINT ${WIN_LIB_PATH} libvorbis)
+    lm_helper_find_lib(OGG_LIBRARIES NO_HINT ${WIN_LIB_PATH} libogg)
+    lm_helper_find_lib(VORBISFILE_LIBRARIES NO_HINT ${WIN_LIB_PATH} libvorbisfile)
+    lm_helper_find_runtimes(VORBIS_RUNTIME NO_HINT ${WIN_LIB_PATH} libogg libvorbis libvorbisfile)
+    
+    
+    find_path(VORBIS_INCLUDE_DIRS vorbisfile.h
+		PATH_SUFFIXES include include/vorbis include/ogg
+		PATHS
+		${WIN_LIB_PATH}
+	)
+    
 else()
 
 	set(VORBIS_SEARCH_PATH
