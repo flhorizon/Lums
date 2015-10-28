@@ -30,81 +30,56 @@ target_link_libraries(Lums_shared ${LINK_LIB})
 
 if (WIN32 AND MSVC)
 
-    # Sane warning; shouldn't disable it and fix the causes
-    #get_target_properties(tmp_Lums_shared_LNK  Lums_shared LINK_FLAGS_DEBUG)
-    #set_target_properties(Lums_shared PROPERTIES LINK_FLAGS_DEBUG "${tmp_Lums_shared_LNK} /NODEFAULTLIB:MSVCRT")
-    #unset(tmp_Lums_shared_LNK)
-
-    # Ease solving the DLL hell for the client software.
-    #set(LUMS_RUNTIME_DEPS ${PNG_RUNTIME} ${ZLIB_RUNTIME} ${VORBISFILE_RUNTIME} ${VORBIS_RUNTIME} ${OGG_RUNTIME})
+    get_target_property(LINK_LUMS_FLAGS Lums_shared LINK_FLAGS)
+    if (LINK_LUMS_FLAGS MATCHES "LINK_LUMS_FLAGS-NOTFOUND")
+        set(LINK_LUMS_FLAGS)
+    endif()
+    set_target_properties(Lums_shared PROPERTIES LINK_FLAGS "/NODEFAULTLIB:MSVCRT ${LINK_LUMS_FLAGS}")
     
-    # Get rid of those annoying <buildtype> subdirectories !
-    # CMAKE_*_OUTPUT_DIRECTORY are set in the project top-level CMakeLists.txt
-    # get_target_property(tmp_RT_OUTPUT_DIR Lums_shared RUNTIME_OUTPUT_DIRECTORY)
-    # get_target_property(tmp_LIB_OUTPUT_DIR Lums_shared LIBRARY_OUTPUT_DIRECTORY)
-    # get_target_property(tmp_AR_OUTPUT_DIR Lums_shared ARCHIVE_OUTPUT_DIRECTORY)
-    # foreach( tmp_OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
-       # string( TOUPPER ${tmp_OUTPUTCONFIG} tmp_OUTPUTCONFIG )        
-        
-       # set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${tmp_OUTPUTCONFIG} "${tmp_RT_OUTPUT_DIR}" )
-       # #message(STATUS "CMAKE INSTALL DEBUG: CMAKE_RUNTIME_OUTPUT_DIRECTORY_${tmp_OUTPUTCONFIG} == ${tmp_RT_OUTPUT_DIR}")
-        
-       # set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${tmp_OUTPUTCONFIG} "${tmp_LIB_OUTPUT_DIR}" )
-       # #message(STATUS "CMAKE INSTALL DEBUG: CMAKE_LIBRARY_OUTPUT_DIRECTORY_${tmp_OUTPUTCONFIG} == ${tmp_LIB_OUTPUT_DIR}")
-       
-       # set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${tmp_OUTPUTCONFIG} "${tmp_AR_OUTPUT_DIR}" )
-       # #message(STATUS "CMAKE INSTALL DEBUG: CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${tmp_OUTPUTCONFIG} == ${tmp_AR_OUTPUT_DIR}")
-        
-        
-    # endforeach( tmp_OUTPUTCONFIG )
+    add_custom_command(TARGET Lums_shared POST_BUILD
+        COMMAND ${CMAKE_COMMAND} 
+            -DSOURCE_FILE=$<TARGET_FILE_DIR:Lums_shared>/Lums$<$<CONFIG:Debug>:d>.pdb
+            -DDESTINATION_FILE=${CMAKE_PDB_OUTPUT_DIRECTORY}/Lums$<$<CONFIG:Debug>:d>.pdb
+            -P "${CMAKE_MODULE_PATH}/LmCopyIfExistsDifferent.cmake"
+            DEPENDS $<TARGET_FILE_DIR:Lums_shared>/Lums$<$<CONFIG:Debug>:d>.pdb
+    )
     
-    # FIXME: Handle this the multi-configuration way
+    install(FILES "${CMAKE_PDB_OUTPUT_DIRECTORY}/Lumsd.pdb" DESTINATION bin)
+    
+    # Copy and Install 3rd party DLLs and their PDBs
     list(APPEND tmp_Dep_Runtimes ${PNG_RUNTIME} ${ZLIB_RUNTIME} ${VORBISFILE_RUNTIME} ${VORBIS_RUNTIME} ${OGG_RUNTIME} )  
     foreach(tmp_Dep_DLL_Src ${tmp_Dep_Runtimes})
         get_filename_component(tmp_DLL_Dir ${tmp_Dep_DLL_Src} DIRECTORY)
         get_filename_component(tmp_DLL_Basename ${tmp_Dep_DLL_Src} NAME)
         get_filename_component(tmp_DLL_Basename_WE ${tmp_DLL_Basename} NAME_WE)
-      
-      
+        
         
         set(tmp_Runtime_Target "Lums_DllHell_${tmp_DLL_Basename_WE}")
-        set(tmp_Dep_DLL_Src_Dest "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${tmp_DLL_Basename}")
+        set(tmp_Dep_DLL_Dest "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${tmp_DLL_Basename}")
         set(tmp_Dep_PDB_Src "${tmp_DLL_Dir}/${tmp_DLL_Basename_WE}.pdb")
         set(tmp_Dep_PDB_Dest "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${tmp_DLL_Basename_WE}.pdb")
+
+        if (NOT EXISTS ${tmp_Dep_PDB_Src})
+            set(tmp_Effective_PDB_${tmp_DLL_Basename_WE})
+        else()
+            set(tmp_Effective_PDB_${tmp_DLL_Basename_WE} "${tmp_Dep_PDB_Src}")
+        endif()
         
-        message(STATUS "--DLLHELL - cp target output :  ${tmp_Dep_DLL_Src_Dest}")
         
         add_custom_target(${tmp_Runtime_Target} ALL
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${tmp_Dep_PDB_Src}" "${tmp_Dep_PDB_Dest}"
-            DEPENDS "${tmp_Dep_DLL_Src_Dest}"
-        )
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different "${tmp_Dep_DLL_Src}" "${tmp_Dep_DLL_Dest}"
+            COMMAND ${CMAKE_COMMAND} 
+                -DSOURCE_FILE="${tmp_Dep_PDB_Src}"
+                -DDESTINATION_FILE="${tmp_Dep_PDB_Dest}"
+                -P "${CMAKE_MODULE_PATH}/LmCopyIfExistsDifferent.cmake"
+            DEPENDS "${tmp_Dep_DLL_Src}" "${tmp_Effective_PDB_${tmp_DLL_Basename_WE}}"
+        )        
         
-        add_custom_command(TARGETS Lums_shared POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different  "${tmp_Dep_PDB_Src}" "${tmp_Dep_PDB_Dest}"
-        )
         
         add_dependencies(Lums_shared ${tmp_Runtime_Target})        
-        install(FILES "${tmp_Dep_DLL_Src_Dest};${tmp_Dep_PDB_Dest}" DESTINATION bin )
-        
-        #add_custom_command(
-        #    OUTPUT ${tmp_Dep_DLL_Src_Dest}
-        #    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${tmp_Dep_DLL_Src}" "${tmp_Dep_DLL_Src_Dest}"
-        #)
-        #add_custom_target(${tmp_Runtime_Target} ALL DEPENDS "${tmp_Dep_DLL_Src_Dest}")
-        #install(FILES "${tmp_Dep_DLL_Src_Dest}" DESTINATION bin)        
-        #export(TARGETS ${tmp_Runtime_Target} FILE lib/cmake/DLLHell-export.cmake)
-        
+        install(FILES ${tmp_Dep_DLL_Dest} ${tmp_Effective_PDB_${tmp_DLL_Basename_WE}} DESTINATION bin )        
+               
     endforeach(tmp_Dep_DLL_Src)
-    
-    
-    
-    
-    ## Original copy instruction....
-    # file(
-        # COPY
-        # ${PNG_RUNTIME} ${ZLIB_RUNTIME} ${VORBISFILE_RUNTIME} ${VORBIS_RUNTIME} ${OGG_RUNTIME}
-        # DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-    # )
     
     unset(tmp_Dep_Runtimes)
     unset(tmp_Dep_DLL_Src)
