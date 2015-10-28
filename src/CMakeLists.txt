@@ -30,11 +30,11 @@ target_link_libraries(Lums_shared ${LINK_LIB})
 
 if (WIN32 AND MSVC)
 
-    get_target_property(LINK_LUMS_FLAGS Lums_shared LINK_FLAGS)
-    if (LINK_LUMS_FLAGS MATCHES "LINK_LUMS_FLAGS-NOTFOUND")
-        set(LINK_LUMS_FLAGS)
-    endif()
-    set_target_properties(Lums_shared PROPERTIES LINK_FLAGS "/NODEFAULTLIB:MSVCRT ${LINK_LUMS_FLAGS}")
+    # get_target_property(LINK_LUMS_FLAGS Lums_shared LINK_FLAGS)
+    # if (LINK_LUMS_FLAGS MATCHES "LINK_LUMS_FLAGS-NOTFOUND")
+    #     set(LINK_LUMS_FLAGS)
+    # endif()
+    # set_target_properties(Lums_shared PROPERTIES LINK_FLAGS "/NODEFAULTLIB:MSVCRT ${LINK_LUMS_FLAGS}")
     
     add_custom_command(TARGET Lums_shared POST_BUILD
         COMMAND ${CMAKE_COMMAND} 
@@ -44,10 +44,10 @@ if (WIN32 AND MSVC)
             DEPENDS $<TARGET_FILE_DIR:Lums_shared>/Lums$<$<CONFIG:Debug>:d>.pdb
     )
     
-    install(FILES "${CMAKE_PDB_OUTPUT_DIRECTORY}/Lumsd.pdb" DESTINATION bin)
+    install(FILES $<$<CONFIG:Debug>:${CMAKE_PDB_OUTPUT_DIRECTORY}/Lumsd.pdb> DESTINATION bin)
     
     # Copy and Install 3rd party DLLs and their PDBs
-    list(APPEND tmp_Dep_Runtimes ${PNG_RUNTIME} ${ZLIB_RUNTIME} ${VORBISFILE_RUNTIME} ${VORBIS_RUNTIME} ${OGG_RUNTIME} )  
+    list(APPEND tmp_Dep_Runtimes ${PNG_RUNTIME} ${ZLIB_RUNTIME} ${VORBISFILE_RUNTIME} ${VORBIS_RUNTIME} ${OGG_RUNTIME} ${FREETYPE_RUNTIME})  
     foreach(tmp_Dep_DLL_Src ${tmp_Dep_Runtimes})
         get_filename_component(tmp_DLL_Dir ${tmp_Dep_DLL_Src} DIRECTORY)
         get_filename_component(tmp_DLL_Basename ${tmp_Dep_DLL_Src} NAME)
