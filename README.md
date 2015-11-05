@@ -21,6 +21,10 @@ The execution flow of your game is granted to the core. You feed it with a start
 it. That's all! Your gamestate hooks will get called in the right order, at the right moment. Just relax and let
 the magic happen.
 
+On Windows, Lums takes the responsibility for loading a set OpenGL functions from the available implementation at runtime.
+Supported OpenGL functions are included in Lums' headers; their storage pointers are exported by Lums itself.
+Lums for Windows currently loads the core 3.2 functions.
+
 ## Getting started
 
 Lums is bundled with some tools. To create a working Lums project, the lums command line tool can be used.

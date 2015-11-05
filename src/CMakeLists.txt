@@ -17,25 +17,20 @@ list(APPEND SRC ${OS_SRC})
 
 set(LUMS_ALL lums_shared)
 
-#if (MSVC OR WIN32 AND CMAKE_BUILD_TYPE MATCHES "Debug")
-#    # CMAKE_BUILD_TYPE is relevant ONLY in mono-configuration case (GNU Make output)
-#    # CMAKE_BUILD_TYPE is unused and empty in multi-configuration cases (VS .sln output)
-#    set (WIN_DEBUG "d")
-#endif()
+if (WIN32)
+    # CMAKE_BUILD_TYPE is relevant ONLY in mono-configuration case (GNU Make output)
+    # CMAKE_BUILD_TYPE is unused and empty in multi-configuration cases (VS .sln output)
+    set(WIN_DEBUG_SUFFIX "d")
+endif()
 
 add_library(Lums_shared SHARED ${SRC} ${HEADER})
 set_target_properties(Lums_shared PROPERTIES OUTPUT_NAME "Lums" DEFINE_SYMBOL "EXPORT_DLL")
-set_target_properties(Lums_shared PROPERTIES OUTPUT_NAME_DEBUG "Lumsd" DEFINE_SYMBOL "EXPORT_DLL")
+set_target_properties(Lums_shared PROPERTIES OUTPUT_NAME_DEBUG "Lums${WIN_DEBUG_SUFFIX}" DEFINE_SYMBOL "EXPORT_DLL")
 target_link_libraries(Lums_shared ${LINK_LIB})
 
 if (WIN32 AND MSVC)
 
-    # get_target_property(LINK_LUMS_FLAGS Lums_shared LINK_FLAGS)
-    # if (LINK_LUMS_FLAGS MATCHES "LINK_LUMS_FLAGS-NOTFOUND")
-    #     set(LINK_LUMS_FLAGS)
-    # endif()
-    # set_target_properties(Lums_shared PROPERTIES LINK_FLAGS "/NODEFAULTLIB:MSVCRT ${LINK_LUMS_FLAGS}")
-    
+    # Copy Program DataBase files along DLLs, *if any*    
     add_custom_command(TARGET Lums_shared POST_BUILD
         COMMAND ${CMAKE_COMMAND} 
             -DSOURCE_FILE=$<TARGET_FILE_DIR:Lums_shared>/Lums$<$<CONFIG:Debug>:d>.pdb
@@ -44,7 +39,9 @@ if (WIN32 AND MSVC)
             DEPENDS $<TARGET_FILE_DIR:Lums_shared>/Lums$<$<CONFIG:Debug>:d>.pdb
     )
     
+    # And install them. 
     install(FILES $<$<CONFIG:Debug>:${CMAKE_PDB_OUTPUT_DIRECTORY}/Lumsd.pdb> DESTINATION bin)
+    # TODO: EXPORT PDBs and 3rd party DLLs
     
     # Copy and Install 3rd party DLLs and their PDBs
     list(APPEND tmp_Dep_Runtimes ${PNG_RUNTIME} ${ZLIB_RUNTIME} ${VORBISFILE_RUNTIME} ${VORBIS_RUNTIME} ${OGG_RUNTIME} ${FREETYPE_RUNTIME})  
@@ -72,7 +69,7 @@ if (WIN32 AND MSVC)
                 -DSOURCE_FILE="${tmp_Dep_PDB_Src}"
                 -DDESTINATION_FILE="${tmp_Dep_PDB_Dest}"
                 -P "${CMAKE_MODULE_PATH}/LmCopyIfExistsDifferent.cmake"
-            DEPENDS "${tmp_Dep_DLL_Src}" "${tmp_Effective_PDB_${tmp_DLL_Basename_WE}}"
+            DEPENDS ${tmp_Dep_DLL_Src} ${tmp_Effective_PDB_${tmp_DLL_Basename_WE}}
         )        
         
         

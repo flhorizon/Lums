@@ -2,11 +2,11 @@
 # LmHelperFindLib.cmake
 
 # OUTPUT_LIBRARIES: parent scope variable name to set with found libs list
-# ENV_HINT: Environment variable name providing a hint. Use NO_HINT to avoir prviding one.
-# LITTERAL_PATHS: An expanded list of hard coded paths to walk. Mandatory.
+# ENV_HINT: Environment variable name provided as a hint. Use NO_HINT to avoid giving one.
+# LITERAL_PATHS: An expanded list of hard coded paths to walk. Mandatory.
 # more args: the base names to look for.
 
-function(lm_helper_find_lib OUTPUT_LIBRARIES ENV_HINT LITTERAL_PATHS)
+function(lm_helper_find_lib OUTPUT_LIBRARIES ENV_HINT LITERAL_PATHS)
     list(REMOVE_AT ARGV 2 1 0)
     set(LIB_NAMES ${ARGV})
     set(DEBUG_LIB_NAMES ${ARGV})
@@ -26,7 +26,7 @@ function(lm_helper_find_lib OUTPUT_LIBRARIES ENV_HINT LITTERAL_PATHS)
             HINTS ENV ${ENV_HINT}
             PATH_SUFFIXES lib64 lib libs64 libs libs/Win32 libs/Win64
             PATHS
-            ${LITTERAL_PATHS}
+            ${LITERAL_PATHS}
         )
         if (NOT OUTVAR_${A_NAME} MATCHES "OUTVAR_${A_NAME}-NOTFOUND")
             list(APPEND FOUND_SO_FAR ${OUTVAR_${A_NAME}})
@@ -47,7 +47,7 @@ endfunction(lm_helper_find_lib)
 
 
 
-function(lm_helper_find_runtimes OUTPUT_RUNTIMES ENV_HINT LITTERAL_PATHS)
+function(lm_helper_find_runtimes OUTPUT_RUNTIMES ENV_HINT LITERAL_PATHS)
     list(REMOVE_AT ARGV 2 1 0)
     set(DLL_NAMES ${ARGV})
     set(FOUND_SO_FAR)
@@ -67,7 +67,7 @@ function(lm_helper_find_runtimes OUTPUT_RUNTIMES ENV_HINT LITTERAL_PATHS)
             HINTS ENV ${ENV_HINT}
             PATH_SUFFIXES bin
             PATHS
-            ${LITTERAL_PATHS}
+            ${LITERAL_PATHS}
         )
         if (NOT OUTVAR_${A_NAME} MATCHES "OUTVAR_${A_NAME}-NOTFOUND")
             list(APPEND FOUND_SO_FAR ${OUTVAR_${A_NAME}})
