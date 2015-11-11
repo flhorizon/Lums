@@ -55,7 +55,6 @@ function(lm_helper_find_runtimes OUTPUT_RUNTIMES ENV_HINT LITERAL_PATHS)
     set(ALL_DLL_NAMES)
     set(WIN_DEBUG_SUFFIX "d")
     foreach(A_NAME IN LISTS DLL_NAMES)
-        list(INSERT ALL_DLL_NAMES 0 "${A_NAME}${WIN_DEBUG_SUFFIX}")
         list(INSERT ALL_DLL_NAMES 0 "${A_NAME}${WIN_DEBUG_SUFFIX}.dll" "${A_NAME}.dll")
     endforeach(A_NAME)
     

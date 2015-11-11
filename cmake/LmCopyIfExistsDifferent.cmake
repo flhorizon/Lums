@@ -5,6 +5,6 @@
 
 if(EXISTS ${SOURCE_FILE})
   execute_process(COMMAND ${CMAKE_COMMAND}
-    -E copy ${SOURCE_FILE} ${DESTINATION_FILE}
+    -E copy_if_different ${SOURCE_FILE} ${DESTINATION_FILE}
 )
 endif()

@@ -11,12 +11,19 @@ set(CMAKE_CONFIGURATION_TYPES "Debug;Release")
 if(NOT MSVC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcolor-diagnostics -std=c++11 -fno-exceptions -fno-rtti -Wall -Wno-multichar")
 else()
-    if (NOT DEFINED CMAKE_INSTALL_PREFIX)
+    if (MSVC)
+        set(WIN32_COMPILER msvc)
+    else()
+        set(WIN32_COMPILER mingw)
+    endif(MSVC)
+    set(WIN32_EXT_DEP_PATH "${CMAKE_SOURCE_DIR}/ext/${WIN32_COMPILER}")
+    if (NOT DEFINED INSTALL_PREFIX)
         set(
             CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install"
             CACHE PATH "A default, unpriviledged install path on Windows with MSVC" FORCE
         )
-    endif(NOT DEFINED CMAKE_INSTALL_PREFIX)
+        set(INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
+    endif(NOT DEFINED INSTALL_PREFIX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /wd4244 /D_HAS_EXCEPTIONS=0 /GR- /vmg")
 endif()
 

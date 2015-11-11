@@ -10,7 +10,8 @@ endif()
 
 if(WIN32)
 	file(GLOB OS_SRC "OS/WinNT/*.cpp" "OS/WinNT/*.c")
-	include_directories("OS/WinNT")
+    file(GLOB WINNT_GL_HEADER "OS/WinNT/gl_*.h")
+    include_directories("OS/WinNT")
 endif()
 
 list(APPEND SRC ${OS_SRC})
@@ -19,7 +20,7 @@ set(LUMS_ALL lums_shared)
 
 if (WIN32)
     # CMAKE_BUILD_TYPE is relevant ONLY in mono-configuration case (GNU Make output)
-    # CMAKE_BUILD_TYPE is unused and empty in multi-configuration cases (VS .sln output)
+    #                  is unused and empty in multi-configuration cases (VS generator)
     set(WIN_DEBUG_SUFFIX "d")
 endif()
 
@@ -29,6 +30,23 @@ set_target_properties(Lums_shared PROPERTIES OUTPUT_NAME_DEBUG "Lums${WIN_DEBUG_
 target_link_libraries(Lums_shared ${LINK_LIB})
 
 if (WIN32 AND MSVC)
+
+    # Also generate a PDB for a release build.
+    set(tmp_MISC_FLAGS)
+    get_target_property(tmp_MISC_FLAGS Lums_shared COMPILE_FLAGS)
+    if (tmp_MISC_FLAGS MATCHES "(.*)-NOTFOUND")
+        set(tmp_MISC_FLAGS)
+    endif()
+    # Implies Linker flags /DEBUG /PDB:<output>.pdb
+    set_target_properties(Lums_shared PROPERTIES COMPILE_FLAGS "${tmp_MISC_FLAGS} /Zi")
+    set(tmp_MISC_FLAGS)
+    get_target_property(tmp_MISC_FLAGS Lums_shared LINK_FLAGS_RELEASE)
+    if (tmp_MISC_FLAGS MATCHES "(.*)-NOTFOUND")
+        set(tmp_MISC_FLAGS)
+    endif()
+    # Reasonably optimize the Release binary size
+    set_target_properties(Lums_shared PROPERTIES LINK_FLAGS_RELEASE "${tmp_MISC_FLAGS} /OPT:REF /OPT:ICF")
+    
 
     # Copy Program DataBase files along DLLs, *if any*    
     add_custom_command(TARGET Lums_shared POST_BUILD
@@ -40,7 +58,8 @@ if (WIN32 AND MSVC)
     )
     
     # And install them. 
-    install(FILES $<$<CONFIG:Debug>:${CMAKE_PDB_OUTPUT_DIRECTORY}/Lumsd.pdb> DESTINATION bin)
+    # install(FILES $<$<CONFIG:Debug>:${CMAKE_PDB_OUTPUT_DIRECTORY}/Lumsd.pdb> DESTINATION bin)
+    install(FILES ${CMAKE_PDB_OUTPUT_DIRECTORY}/Lums$<$<CONFIG:Debug>:d>.pdb DESTINATION bin)
     # TODO: EXPORT PDBs and 3rd party DLLs
     
     # Copy and Install 3rd party DLLs and their PDBs
@@ -77,6 +96,10 @@ if (WIN32 AND MSVC)
         install(FILES ${tmp_Dep_DLL_Dest} ${tmp_Effective_PDB_${tmp_DLL_Basename_WE}} DESTINATION bin )        
                
     endforeach(tmp_Dep_DLL_Src)
+    
+    # Install external dependencies' headers
+    install(FILES ${WINNT_GL_HEADER} DESTINATION include)
+    install(DIRECTORY "${WIN32_EXT_DEP_PATH}/include/." DESTINATION include)
     
     unset(tmp_Dep_Runtimes)
     unset(tmp_Dep_DLL_Src)

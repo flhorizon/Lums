@@ -18,10 +18,9 @@ if (WIN32)
     lm_helper_find_lib(ZLIB_LIBRARIES NO_HINT ${WIN_LIB_PATH} zlib)
     lm_helper_find_runtimes(ZLIB_RUNTIME NO_HINT ${WIN_LIB_PATH} zlib)
 
-    find_path(ZLIB_INCLUDE_DIRS zlib
+    find_path(ZLIB_INCLUDE_DIRS zlib.h
 		PATH_SUFFIXES include
-		PATHS
-		${WIN_LIB_PATH}
+		PATHS ${WIN_LIB_PATH}
 	)
     
 else()

@@ -20,7 +20,7 @@
 #endif
 
 #ifdef WIN32
-#include <gl/gl_core_3_2.h>
+#include <gl_core_3_2.h>
 #endif
 
 
