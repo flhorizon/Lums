@@ -17,6 +17,7 @@
 #include "AtlBase.h"
 #include "Shlobj.h"
 #include <LumsInclude/OperatingSystem.hpp>
+#include <vector>
 
 namespace lm
 {
@@ -47,12 +48,22 @@ namespace lm
 		USES_CONVERSION;
         if (res_path.empty())
         {
-            wchar_t 		wcPath[MAX_PATH];
-			std::wstring	wcPathStr;
+            std::vector<wchar_t> wcPath(MAX_PATH);
+			std::wstring wcPathStr;
+            DWORD ret;
 
-            GetModuleFileNameW(nullptr, wcPath, MAX_PATH);
+            ret = GetModuleFileNameW(nullptr, &wcPath[0], wcPath.size());
+            if (ret == wcPath.size() && GetLastError() == ERROR_INSUFFICIENT_BUFFER)
+            {
+                wcPath.resize(INT16_MAX);
+                ret = GetModuleFileNameW(nullptr, &wcPath[0], wcPath.size());
+                if (ret == 0)
+                {
+                    return res_path;
+                }
+            }
 			
-            wcPathStr = wcPath;
+            wcPathStr = wcPath.data();
 			wcPathStr = wcPathStr.substr(0, wcPathStr.find_last_of(L'\\') + 1) + L"resources\\";
 			normalizePath(wcPathStr);
 			
@@ -117,9 +128,26 @@ namespace lm
     mkDir(const char* dirPath)
 	{
         USES_CONVERSION;
-        std::wstring    wsPath(CA2W(dirPath, CP_UTF8));
+        std::string     sPath(dirPath);
+        std::wstring    wsPath;
+        size_t          len;
 
-        normalizePath(wsPath, L'/', L'\\');
+        // Special handling if length > MAX_PATH .
+        normalizePath(sPath, '/', '\\');
+        wsPath = CA2W(sPath.c_str(), CP_UTF8);
+        len = wsPath.length();
+
+        // Special handling requiered over UCHAR_MAX
+        if (len > MAX_PATH)
+        {
+            const wchar_t* prefix = L"\\\\?\\";
+            // Hard max is documented to be 32767 (as INT16_MAX);
+            if (len > INT16_MAX)
+                return -2;
+            // When prefixed, the path must be striclty absolute.
+            if (wsPath.find(prefix, 0) != 0)
+                wsPath.insert(0, prefix);
+        }
 
         // Nothing to do; success.
         if (directoryExists(wsPath.c_str()))

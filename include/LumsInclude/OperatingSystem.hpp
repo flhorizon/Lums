@@ -36,6 +36,8 @@ namespace lm
 
     /**
      * Try to create a directory corresponding to the given `dirPath'.
+     * On Windows, `dirPath' must be <= INT16_MAX characters long,
+     * and, if > 260 long, must be strictly absolute.
      * @return 0 on success, -1 on error.
      */
     LUMS_EXPORTED int   mkDir(
