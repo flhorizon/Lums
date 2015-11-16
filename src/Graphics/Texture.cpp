@@ -89,8 +89,7 @@ void
 Texture::pushAtlas(const std::string& path, bool resource)
 {
     std::string fpath = resource ? resourcePath() + path : path;
-    std::ifstream f(fpath);
-
+    std::ifstream f(fpath, std::ios::binary);
     uint32_t len;
     f.read((char*)&len, 4);
     for (unsigned i = 0; i < len; ++i)

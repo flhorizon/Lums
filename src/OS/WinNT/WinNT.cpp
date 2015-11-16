@@ -54,9 +54,8 @@ namespace lm
 
             GetModuleFileNameW(nullptr, wcPath, MAX_PATH);
 			
-			wcPathStr = std::wstring(wcPath);
-			normalizePath<std::wstring>(wcPathStr);
-            wcPathStr = wcPathStr.substr(0, wcPathStr.find_last_of(L'/') + 1) + L"resources";
+			wcPathStr = std::wstring(wcPath).substr(0, wcPathStr.find_last_of(L'\\') + 1) + L"resources\\";
+			normalizePath(wcPathStr);            
 			
 			// Convenient ATL conversion macro.
 			// The API conversion function `WideCharToMultiByte' 
@@ -107,7 +106,7 @@ namespace lm
 			return -1;
 		}
 
-		wsAppDir = std::wstring(oPath) + std::wstring(L"\\") + wsAppDir;
+		wsAppDir = std::wstring(oPath) + std::wstring(L"\\") + wsAppDir + std::wstring(L"\\");
 		CoTaskMemFree(oPath);
         oPath = nullptr;
 		

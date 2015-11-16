@@ -14,7 +14,7 @@ class JsonCompiler
     @objects.each do |object|
       write_object buffer, object
     end
-    File.write file, buffer
+    File.binwrite file, buffer
   end
 
   private

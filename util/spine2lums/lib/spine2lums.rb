@@ -24,9 +24,9 @@ class Spine2Lums
     data = JSON.parse(File.read spine_file)
     read data
     atlas_buffer = serialize_atlas
-    File.write atlas_output, atlas_buffer
+    File.binwrite atlas_output, atlas_buffer
     spine_buffer = serialize
-    File.write spine_output, spine_buffer
+    File.binwrite spine_output, spine_buffer
   end
 
   def serialize

@@ -14,9 +14,9 @@ BFile::BFile()
 void
 BFile::open(const std::string& path, bool resource)
 {
-    std::string fpath = (resource) ? resourcePath() + '/' + path : path;
+    std::string fpath = (resource) ? resourcePath() + path : path;
+    std::ifstream file(fpath, std::ios_base::binary);
 
-    std::ifstream file(fpath);
     file.read((char *)&_size, 4);
     _values = new BValue[_size];
 

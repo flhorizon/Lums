@@ -32,7 +32,7 @@ void
 SkeletonBlueprint::load(const std::string& path, bool resource)
 {
     std::string fpath = resource ? resourcePath() + path : path;
-    std::ifstream file(fpath);
+    std::ifstream file(fpath, std::ios::binary);
     _data.loadFromFile(file);
 }
 
