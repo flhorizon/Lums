@@ -18,26 +18,24 @@
 #include "Shlobj.h"
 #include <LumsInclude/OperatingSystem.hpp>
 
-
-// Store UTF-8 for proper std:: C++ and convert back to UTF-16 on WIN32 calls.
-static std::string  res_path;
-static std::string  appsupport_path;
-
 namespace lm
 {
-    template<typename StringT> static void
-    normalizePath(StringT& path)
-    {
-        using AChar = StringT::value_type;
-        const AChar slash = static_cast<AChar>('/');
-        const AChar bslash = static_cast<AChar>('\\');
+    // Store UTF-8 for proper std:: C++ and convert back to UTF-16 on WIN32 calls.
+    static std::string  res_path;
+    static std::string  appsupport_path;
 
+    template<typename StringT> static void
+    normalizePath(StringT& path
+        , typename StringT::value_type cFind = static_cast<typename StringT::value_type>('\\')
+        , typename StringT::value_type cRepl = static_cast<typename StringT::value_type>('/')
+    )
+    {
         for (;;)
         {
-            size_t pos = path.find_first_of(bslash);
+            size_t pos = path.find_first_of(cFind);
 
             if (pos != StringT::npos)
-                path[pos] = slash;
+                path[pos] = cRepl;
             else
                 break;
         }
@@ -54,8 +52,9 @@ namespace lm
 
             GetModuleFileNameW(nullptr, wcPath, MAX_PATH);
 			
-			wcPathStr = std::wstring(wcPath).substr(0, wcPathStr.find_last_of(L'\\') + 1) + L"resources\\";
-			normalizePath(wcPathStr);            
+            wcPathStr = wcPath;
+			wcPathStr = wcPathStr.substr(0, wcPathStr.find_last_of(L'\\') + 1) + L"resources\\";
+			normalizePath(wcPathStr);
 			
 			// Convenient ATL conversion macro.
 			// The API conversion function `WideCharToMultiByte' 
@@ -71,6 +70,34 @@ namespace lm
 	const std::string&
     userDataPath()
 	{
+        USES_CONVERSION;
+        if (!appsupport_path.empty())
+        {
+            return appsupport_path;
+        }
+
+        std::wstring		wsAppDir;
+        PWSTR            	oPath;
+        HRESULT 			res;
+
+        res = SHGetKnownFolderPath(
+            FOLDERID_RoamingAppData				// Query user's AppData\Roaming folder
+            , KF_FLAG_DEFAULT_PATH				// Just get the default path.
+            , nullptr							// On the behalf of the current user
+            , &oPath							// Output. Needs to be CoTaskMemFree'd.
+            );
+
+        if (res != S_OK)
+        {
+            MessageBoxA(nullptr, "Failed to locate %APPDATA%\\Roaming", "Lums error", MB_OK|MB_ICONERROR);
+        }
+        else
+        {
+            wsAppDir = std::wstring(oPath) + std::wstring(L"\\");
+            CoTaskMemFree(oPath);
+            appsupport_path = CW2A(wsAppDir.c_str(), CP_UTF8);
+            normalizePath(appsupport_path);
+        }
 		return appsupport_path;
 	}
 	
@@ -87,40 +114,24 @@ namespace lm
 	// and contrary to most WIN32 API calls.
 	// Returns non-zero on error.
 	int
-	mkAppDataDir(const char* appDir)
+    mkDir(const char* dirPath)
 	{
-		USES_CONVERSION;
-		std::wstring		wsAppDir(CA2W(appDir, CP_UTF8));
-		PWSTR            	oPath;
-		HRESULT 			res;
+        USES_CONVERSION;
+        std::wstring    wsPath(CA2W(dirPath, CP_UTF8));
 
-		res = SHGetKnownFolderPath(
-			FOLDERID_RoamingAppData				// Query user's AppData\Roaming folder
-			, KF_FLAG_DEFAULT_PATH				// Just get the default path.
-			, nullptr							// On the behalf of the current user
-			, &oPath							// Output. Needs to be CoTaskMemFree'd.
-			);
-
-		if (res != S_OK)
-		{
-			return -1;
-		}
-
-		wsAppDir = std::wstring(oPath) + std::wstring(L"\\") + wsAppDir + std::wstring(L"\\");
-		CoTaskMemFree(oPath);
-        oPath = nullptr;
-		
-		appsupport_path = CW2A(wsAppDir.c_str(), CP_UTF8);        
-        normalizePath(appsupport_path);		
+        normalizePath(wsPath, L'/', L'\\');
 
         // Nothing to do; success.
-        if (directoryExists(wsAppDir.c_str()))
+        if (directoryExists(wsPath.c_str()))
             return 0;
 
-		// This one returns 0 on error. RLY.
-		if (0 == CreateDirectoryW(wsAppDir.c_str(), nullptr))
+        // Create the directory
+		if (0 == CreateDirectoryW(wsPath.c_str(), nullptr))
 		{
-			return -2;
+            std::wstring msg(L"Failed to create " + wsPath);
+
+            MessageBoxW(nullptr, msg.c_str(), L"Lums error", MB_OK|MB_ICONERROR);
+			return -1;
 		}
 
 		return 0;

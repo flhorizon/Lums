@@ -34,7 +34,13 @@ namespace lm
      */
     LUMS_EXPORTED const std::string&  userDataPath();
 
-    LUMS_EXPORTED int   mkAppDataDir(const char * dirname);
+    /**
+     * Try to create a directory corresponding to the given `dirPath'.
+     * @return 0 on success, -1 on error.
+     */
+    LUMS_EXPORTED int   mkDir(
+                                const char* dirPath //!< Path to create the directory at.
+                            );
 }
 
 #endif

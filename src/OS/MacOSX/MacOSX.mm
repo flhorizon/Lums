@@ -43,11 +43,11 @@ namespace lm
     }
 
     int
-    mkAppDataDir(const char * dirname)
+    mkDir(const char * dirPath)
     {
         NSFileManager *fileManager= [NSFileManager defaultManager];
         NSError *error = nil;
-        NSString *directory = [NSString stringWithUTF8String:dirname];
+        NSString *directory = [NSString stringWithUTF8String:dirPath];
         
         if(![fileManager createDirectoryAtPath:directory withIntermediateDirectories:YES attributes:nil error:&error])
         {
