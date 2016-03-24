@@ -14,6 +14,9 @@
 #include <vector>
 #include <LumsInclude/Audio/Sfx.hpp>
 
+#include <LumsInclude/Singleton_internal_inline.hpp>
+LM_I_FORCE_SINGLETON_INSTANCE(SfxProvider, lm::SfxProvider)
+
 using namespace lm;
 
 static float    globalVolume = 1.f;

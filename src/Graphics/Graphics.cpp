@@ -12,7 +12,7 @@
 /* ************************************************************************** */
 
 #include <LumsInclude/Graphics/Graphics.hpp>
-#include <LumsInclude/Provider.hpp>
+#include <LumsInclude/Provider_internal.hpp>
 
 namespace lm
 {

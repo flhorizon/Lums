@@ -89,7 +89,7 @@ namespace lm
         std::vector<ALuint> _sources;
     };
 
-    using SfxProvider = StreamProvider<Sfx>;
+    using SfxProvider = internal::StreamProvider<Sfx>;
 }
 
 #endif

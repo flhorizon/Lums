@@ -18,23 +18,24 @@
 #include <LumsInclude/Binary/BObject.hpp>
 #include <LumsInclude/Skeleton/SkeletonData.hpp>
 #include <LumsInclude/Skeleton/Skeleton.hpp>
+#include <LumsInclude/Provider_internal.hpp>
 
 namespace lm
 {
-    class SkeletonBlueprint
+    class LUMS_EXPORTED SkeletonBlueprint
     {
     public:
-        LUMS_EXPORTED SkeletonBlueprint();
-        LUMS_EXPORTED void        loadBinary(const BObject& object);
-        LUMS_EXPORTED void        load(const std::string& path, bool resource = true);
-        LUMS_EXPORTED Skeleton    create() const;
+        SkeletonBlueprint();
+        void        loadBinary(const BObject& object);
+        void        load(const std::string& path, bool resource = true);
+        Skeleton    create() const;
         ~SkeletonBlueprint();
 
     private:
         SkeletonData    _data;
     };
 
-    using SkeletonProvider = Provider<SkeletonBlueprint>;
+    using SkeletonProvider = internal::Provider<SkeletonBlueprint>;
 }
 
 #endif

@@ -24,7 +24,7 @@ using namespace lm;
 Shader::Shader(const char* path, Type type, bool resource)
 {
 	GLenum shaderType;
-	const std::string filename = resource ? resourcePath() + '/' + path : std::string(path);
+	const std::string filename = resource ? resourcePath() + path : std::string(path);
 	std::ifstream stream(filename.c_str());
 
 	if (!stream.good())

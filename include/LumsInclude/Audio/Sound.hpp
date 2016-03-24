@@ -19,7 +19,7 @@
 #include <OpenAL/alc.h>
 #include <vorbis/vorbisfile.h>
 #include <LumsInclude/Math/Vector.hpp>
-#include <LumsInclude/Provider.hpp>
+#include <LumsInclude/Provider_internal.hpp>
 
 #define BUFFER_SIZE 40960
 

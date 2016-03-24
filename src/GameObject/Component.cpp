@@ -15,6 +15,12 @@
 #include <LumsInclude/GameObject/Component.hpp>
 #include <LumsInclude/Binary/BObject.hpp>
 
+#include <LumsInclude/Singleton_internal_inline.hpp>
+
+LM_I_FORCE_SINGLETON_INSTANCE(ComponentFactory, lm::ComponentFactory)
+LM_I_FORCE_SINGLETON_INSTANCE(ComponentBindings, lm::ComponentBindings)
+
+
 using namespace lm;
 
 Component::Component()

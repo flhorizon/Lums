@@ -1,7 +1,7 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                                            */
-/*    Singleton.hpp                                  oooooo       oooooo      */
+/*    Singleton_internal_inline.hpp                  oooooo       oooooo      */
 /*                                                 oooooooooo   oooooooooo    */
 /*                                                         o%%%%%o            */
 /*                                                         %:::::%            */
@@ -11,53 +11,39 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef LUMS_SINGLETON_HPP
-#define LUMS_SINGLETON_HPP
+#ifndef LUMS_SINGLETON_INTERNAL_INLINE_HPP
+#define LUMS_SINGLETON_INTERNAL_INLINE_HPP
 
-// Intended for Singleton instantiation by client code only.
-// Protecting from accidental inclusion in Lums resident code.
-#ifndef EXPORT_DLL
+// Intended for Singleton instantiation by Lums code only.
+#if defined(EXPORT_DLL)
+
+#ifndef LUMS_CONCAT
+# define LUMS_CONCAT(a,b) a ## b
+#endif
+
+// NSClass stands for namespaced::Class.
+#define LM_I_FORCE_SINGLETON_INSTANCE(Class, NSClass)    LUMS_CONCAT(static void instantiate, Class)() \
+                                                         { \
+                                                             (void)lm::internal::Singleton<NSClass>::instance(); \
+                                                         }
 
 namespace lm
 {
-	/**
-	 * @brief An helper template for creating singletons
-	 *
-	 * Singletons created using this class are lazy-constructed
-	 */
-	template <typename T>
-	class Singleton
-	{
-	public:
-		/**
-		 * Get the single instance
-		 * @return The single instance
-		 */
-        static T& Singleton<T>::instance()
+    namespace internal
+    {
+        template<typename T> inline
+        T& Singleton<T>::instance()
         {
             static T t;
 
             return t;
         }
-		
-	protected:
-		/**
-		 * Default ctor
-		 */
-		Singleton() = default;
-
-		/**
-		 * Deleted copy ctor
-		 */
-		Singleton(const Singleton<T>&) = delete;
-
-		/**
-		 * Deleted assignment operator
-		 */
-		Singleton<T>& operator=(const Singleton<T>&) = delete;
-	};
+    }
 }
 
-#endif // !defined(EXPORT_DLL)
+#else
 
-#endif
+#define LM_I_FORCE_SINGLETON_INSTANCE
+
+#endif // defined(EXPORT_DLL)
+#endif // !defined(LUMS_SINGLETON_INLINE_HPP)

@@ -28,6 +28,9 @@
 #include <LumsInclude/Common.hpp>
 #include <LumsInclude/GameObject/GameObjectTemplate.hpp>
 
+// Providers for use by client code.
+#ifndef EXPORT_DLL
+
 namespace lm
 {
     /**
@@ -240,31 +243,8 @@ namespace lm
         }
 
     };
-
-    /**
-     * A provider for shader programs
-     */
-    using ShaderProvider = Provider<ShaderProgram>;
-
-    /**
-     * A stream provider for images
-     */
-    using ImageProvider = StreamProvider<Image>;
-
-    /**
-     * A stream provider for textures
-     */
-    using TextureProvider = StreamProvider<Texture>;
-
-    /**
-     * A stream provider for fonts
-     */
-    using FontProvider = StreamProvider<Font>;
-
-    /**
-     * A provider for game object templates
-     */
-    using GameObjectProvider = Provider<GameObjectTemplate>;
 }
+
+#endif // !defined(EXPORT_DLL)
 
 #endif

@@ -40,7 +40,7 @@ Font::Font()
 void
 Font::setPath(const std::string& path, bool resource)
 {
-    _path = resource ? resourcePath() + '/' + path : path;
+    _path = resource ? resourcePath() + path : path;
 }
 
 void

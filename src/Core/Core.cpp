@@ -15,6 +15,9 @@
 #include <LumsInclude/Graphics/OpenGL.hpp>
 #include <LumsInclude/Graphics/ShaderProgram.hpp>
 
+#include <LumsInclude/Singleton_internal_inline.hpp>
+LM_I_FORCE_SINGLETON_INSTANCE(Core, lm::Core)
+
 using namespace lm;
 
 void

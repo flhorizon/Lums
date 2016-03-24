@@ -16,6 +16,9 @@
 #include <vector>
 #include <LumsInclude/Audio/Music.hpp>
 
+#include <LumsInclude/Singleton_internal_inline.hpp>
+LM_I_FORCE_SINGLETON_INSTANCE(MusicProvider, lm::MusicProvider)
+
 using namespace lm;
 
 static float    globalVolume = 1.f;

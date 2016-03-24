@@ -16,7 +16,7 @@
 
 #include <unordered_map>
 #include <LumsInclude/Common.hpp>
-#include <LumsInclude/Singleton.hpp>
+#include <LumsInclude/Singleton_internal.hpp>
 #include <LumsInclude/Binary/BValue.hpp>
  
 /**
@@ -45,7 +45,7 @@ namespace lm
 {
 	class Component;
 
-	class ComponentFactory : public Singleton<ComponentFactory>
+	class LUMS_EXPORTED ComponentFactory : public internal::Singleton<ComponentFactory>
 	{
 	public:
 		Component*
@@ -78,7 +78,7 @@ namespace lm
 		std::unordered_map<size_t, Component*(*)()>	_ctors;
 	};
 
-	class ComponentBindings : public Singleton<ComponentBindings>
+	class ComponentBindings : public internal::Singleton<ComponentBindings>
 	{
 	public:
 		void

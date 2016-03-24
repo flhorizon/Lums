@@ -19,7 +19,7 @@ else()
     set(WIN32_EXT_DEP_PATH "${CMAKE_SOURCE_DIR}/ext/${WIN32_COMPILER}")
     if (NOT DEFINED INSTALL_PREFIX)
         set(
-            CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/install"
+            CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/myinstall"
             CACHE PATH "A default, unpriviledged install path on Windows with MSVC" FORCE
         )
         set(INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})

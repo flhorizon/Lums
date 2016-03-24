@@ -102,7 +102,7 @@ namespace lm
         std::mutex      _mtx;
     };
 
-    using MusicProvider = StreamProvider<Music>;
+    using MusicProvider = internal::StreamProvider<Music>;
 }
 
 #endif

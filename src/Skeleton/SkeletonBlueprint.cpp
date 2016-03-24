@@ -14,6 +14,9 @@
 #include <LumsInclude/OperatingSystem.hpp>
 #include <LumsInclude/Skeleton/SkeletonBlueprint.hpp>
 
+#include <LumsInclude/Singleton_internal_inline.hpp>
+LM_I_FORCE_SINGLETON_INSTANCE(SkeletonProvider, lm::SkeletonProvider)
+
 using namespace lm;
 
 SkeletonBlueprint::SkeletonBlueprint()

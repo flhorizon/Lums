@@ -53,7 +53,7 @@ Image::operator=(Image&& rhs)
 void
 Image::load()
 {
-    FILE* file = fopen(_path.c_str(), "r");
+    FILE* file = fopen(_path.c_str(), "rb");
 
     unload();
 
@@ -79,7 +79,7 @@ Image::unload()
 void
 Image::setPath(const std::string path, bool resource)
 {
-    _path = resource ? resourcePath() + '/' + path : path;
+    _path = resource ? resourcePath() + path : path;
 }
 
 void

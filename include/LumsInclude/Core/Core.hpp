@@ -22,6 +22,7 @@
 #include <memory>
 #include <LumsInclude/Graphics/Window.hpp>
 #include <LumsInclude/Core/GameState.hpp>
+#include <LumsInclude/Singleton_internal.hpp>
 #include <LumsInclude/ExportDll.hpp>
 
 namespace lm
@@ -34,10 +35,10 @@ namespace lm
      * The goal of this class is to provide a simple, yet efficient way to
      * handle the context of your game.
      */
-    class Core : public Singleton<Core>
+    class Core : public internal::Singleton<Core>
     {
     public:
-        friend class Singleton<Core>;
+        friend class internal::Singleton<Core>;
 
         /**
          * Get the window linked to the core.

@@ -16,11 +16,12 @@
 
 #include <vector>
 #include <LumsInclude/GameObject/GameObject.hpp>
-#include <LumsInclude/Provider.hpp>
+#include <LumsInclude/ExportDll.hpp>
+#include <LumsInclude/Provider_internal.hpp>
 
 namespace lm
 {
-    class GameObjectSet : public Singleton<GameObjectSet>
+    class LUMS_EXPORTED GameObjectSet : public internal::Singleton<GameObjectSet>
     {
     public:
         using container_type = std::vector<GameObject*>;

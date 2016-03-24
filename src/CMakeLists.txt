@@ -19,8 +19,8 @@ list(APPEND SRC ${OS_SRC})
 set(LUMS_ALL lums_shared)
 
 if (WIN32)
-    # CMAKE_BUILD_TYPE is relevant ONLY in mono-configuration case (GNU Make output)
-    #                  is unused and empty in multi-configuration cases (VS generator)
+    # CMAKE_BUILD_TYPE is relevant ONLY in mono-configuration case (e.g.: GNU Make output)
+    #                  is unused and empty in multi-configuration cases (e.g.: VS generator)
     set(WIN_DEBUG_SUFFIX "d")
 endif()
 
@@ -45,7 +45,7 @@ if (WIN32 AND MSVC)
         set(tmp_MISC_FLAGS)
     endif()
     # Reasonably optimize the Release binary size
-    set_target_properties(Lums_shared PROPERTIES LINK_FLAGS_RELEASE "${tmp_MISC_FLAGS} /OPT:REF /OPT:ICF")
+    set_target_properties(Lums_shared PROPERTIES LINK_FLAGS_RELEASE "${tmp_MISC_FLAGS} /DEBUG /PDB:${CMAKE_PDB_OUTPUT_DIRECTORY}/Lums.pdb /OPT:REF /OPT:ICF")
     
 
     # Copy Program DataBase files along DLLs, *if any*    

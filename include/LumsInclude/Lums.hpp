@@ -72,6 +72,7 @@
 #include <LumsInclude/OperatingSystem.hpp>
 #include <LumsInclude/Provider.hpp>
 #include <LumsInclude/Singleton.hpp>
+#include <LumsInclude/Singleton_internal.hpp>
 
 /**
  * @brief The Lums namespace
